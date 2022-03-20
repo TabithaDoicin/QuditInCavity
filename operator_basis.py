@@ -26,3 +26,11 @@ def vector(j,k,d): #0 is the ground state
 
 
 
+def vector2(d):
+    out = np.empty([d,d],dtype=object)
+    for n in range(d):
+        for m in range(d):
+            out[n,m] = basis(d,n)*basis(d,m).dag()
+    return out
+    
+    

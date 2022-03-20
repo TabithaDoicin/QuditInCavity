@@ -17,7 +17,7 @@ wc = wa = 1 # cavity and atom frequency
 g  = 1    # coupling strength
 kappa = g*0.05            # cavity dissipation rate
 gamma = 0           # atom dissipation rate
-gamma_d = kappa
+gamma_d = 0.04*kappa
 biggamma = 0.02*kappa
 # Jaynes-Cummings Hamiltonian
 a  = tensor(destroy(N), qeye(2))
@@ -36,7 +36,7 @@ print(H)
 # that the discrete Fourier transform (FFT) captures all the features in the
 # resulting spectrum.
 wlist = np.linspace(-np.pi *g + wc, np.pi *g + wc, 200)
-spec = 0.06*spectrum(H, wlist, c_ops, a.dag(), a)
+spec = 1*spectrum(H, wlist, c_ops, a.dag(), a)
 
 fig, ax = plt.subplots()
 ax.plot(wlist, np.log10(spec))
