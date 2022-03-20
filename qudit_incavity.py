@@ -12,12 +12,12 @@ from matplotlib import cm
 import matplotlib.animation as anim
 import operator_basis as v
 
-N = 10               # number of cavity fock states
-D = 7           #number of atomic states?
+N = 12               # number of cavity fock states
+D = 4           #number of atomic states?
 geff = 1
-ep=1*geff
+ep=0.2*geff
 glist = np.linspace(geff/np.sqrt(D-1),geff/np.sqrt(D-1),D-1)
-delta = np.linspace(-ep/2,ep/2,D-1)
+delta = np.linspace(-ep/2,ep/2,D-1)#for D=2 picks -ep/2 avoid confusion!!!! (use ep=0 for small D=2 (jc))
 wa = 0 # cavity and atom frequency
 wc = 0
 g  = 1    # coupling strength
@@ -25,15 +25,10 @@ kappa = g*0.05            # cavity dissipation rate
 gamma = 0          # atom dissipation rate
 gamma_d = 0.01*kappa
 biggamma =0.05*kappa
-# Jaynes-Cummings Hamiltonian
-
 
 a  = tensor(destroy(N), qeye(D))
 vec = np.empty([D,D],dtype=object)
-vectorsmat = v.vector2(D) #new
-# for n in range(D):
-#     for m in range(D):
-#         vec[n,m] = tensor(qeye(N),Qobj(v.vector(n+1,m+1,D)))
+vectorsmat = v.vector2(D)
  
 for n in range(D):
     for m in range(D):
@@ -48,7 +43,7 @@ co_op_pumping = [np.sqrt(biggamma)*vec[n,0] for n in range(1,D)]
 c_ops = co_op_cavity_decay+co_op_pumping+co_op_radiative_decay+co_op_dephasing
 
 
-wlist = np.linspace(-1*np.pi *g + wc, 1*np.pi *g + wc, 2000)
+wlist = np.linspace(-1*np.pi *g + wc, 1*np.pi *g + wc, 400)
 spec = 1*spectrum(H, wlist, c_ops, a.dag(), a)
 
 fig, ax = plt.subplots()
