@@ -17,7 +17,7 @@ def vector2(d):
 
 class JC:
     
-    def __init__(self, N, g, wc, wa, kappa, gamma, gamma_d, theta, omega):
+    def __init__(self, N, g, wc, wa, kappa, gamma, gamma_d, theta, omega=0):
         #system variables
         self.N = N
         self.g = g
@@ -34,16 +34,23 @@ class JC:
         self.sm = qt.tensor(qt.operators.qeye(self.N),qt.operators.destroy(2))
         self.smdag = self.sm.dag()
         
-    def hamiltonian(self):
+    def hamiltonian(self, accuracy=0):
         #constructing hamiltonian in RWA
         self.H = self.wc*self.adag*self.a + self.wa*self.smdag*self.sm + self.g*(self.adag*self.sm + self.a*self.smdag)
-        
-        self.V = self.omega*(self.a + self.adag)
         
         if self.omega==0:
             return self.H
         elif self.omega!=0:
-            return self.H, self.V
+            if accuracy ==0:
+                print("ERROR: set granularity>0")
+                pass
+            else:
+                self.V = self.omega*(self.a + self.adag)
+                self.wl_list = np.linspace(-1*np.pi*self.g + self.wc, 1*np.pi*self.g + self.wc, accuracy)
+                self.Htot = np.empty([accuracy],dtype=object)
+                for i in range(accuracy):
+                    self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a - self.wl_list[i]*self.smdag*self.sm
+                return self.Htot
         
     def collapse(self):
         #collapse operators
@@ -55,10 +62,16 @@ class JC:
         self.c_ops = self.coop_cavity_decay + self.coop_radiative_decay + self.coop_dephasing + self.coop_pumping
         
         return self.c_ops
+
+    def g2listcalc(self):
+        self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
+        for i in range(len(self.wl_list)):
+            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
+        return self.g2list
         
 class MultiLevel:
     
-    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega):
+    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0):
         #system variables
         self.N = N
         self.D = D
@@ -73,7 +86,7 @@ class MultiLevel:
         self.omega = omega
         #multilevel energies
         self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
-        self.delta = np.linspace(-self.ep,self.ep,self.D-1)
+        self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
         #system operators - cavity
         self.a  = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
         self.adag = self.a.dag()
@@ -84,17 +97,25 @@ class MultiLevel:
             for m in range(self.D):
                 self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
         
-    def hamiltonian(self):
+    def hamiltonian(self, accuracy=0):
         #constructing hamiltonian in RWA
         self.H = self.wc*self.adag*self.a + sum([(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) \
             + sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
         
-        self.V = self.omega*(self.a + self.adag)
-        
         if self.omega==0:
             return self.H
         elif self.omega!=0:
-            return self.H, self.V
+            if accuracy==0:
+                print("ERROR: set granularity>0")
+                pass
+            else:
+                self.V = self.omega*(self.a + self.adag)
+                self.wl_list = np.linspace(-1*np.pi*self.geff + self.wc, 1*np.pi*self.geff + self.wc, accuracy)
+                self.Htot = np.empty([accuracy],dtype=object)
+                for i in range(accuracy):
+                    self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a \
+                        - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)])
+                return self.Htot
     
     def collapse(self):
         #collapse operators
@@ -106,3 +127,9 @@ class MultiLevel:
         self.c_ops = self.coop_cavity_decay + self.coop_radiative_decay + self.coop_dephasing + self.coop_pumping
         
         return self.c_ops
+    
+    def g2listcalc(self):
+        self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
+        for i in range(len(self.wl_list)):
+            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
+        return self.g2list

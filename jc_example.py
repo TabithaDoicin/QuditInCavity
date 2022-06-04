@@ -8,24 +8,29 @@ Created on Sun Mar 13 22:13:10 2022
 import numpy as np
 from qutip import *
 import matplotlib.pyplot as plt
-import tufarellisys as t
+import simulation as t
 
 N = 3                 # number of cavity fock states
 wc = wa = 0 # cavity and atom frequency
 g  = 1    # coupling strength
-kappa = g*0.05            # cavity dissipation rate
+kappa = g            # cavity dissipation rate
 gamma = 0           # atom dissipation rate
-gamma_d = 0.01*kappa
-LAMBDA = 0.01*kappa
-omega=0
+gamma_d = 0.1*kappa
+LAMBDA = 0
+omega=0.01*g
 
 system = t.JC(N, g, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega)
-H= system.hamiltonian()
-print(H)
+Hlist = system.hamiltonian(accuracy=300)
+#print(H)
 c_ops = system.collapse()
 
-wlist = np.linspace(-np.pi *system.g + system.wc, np.pi *system.g + system.wc, 600)
-spec = 1*spectrum(H, wlist, c_ops, system.adag, system.a)
+#wlist = np.linspace(-np.pi *system.g + system.wc, np.pi *system.g + system.wc, 600)
+#spec = 1*spectrum(H, wlist, c_ops, system.adag, system.a)
 
-fig, ax = plt.subplots()
-ax.plot(wlist, np.log10(spec))
+#fig, ax = plt.subplots()
+#ax.plot(wlist, np.log10(spec))
+
+
+g2list = system.g2listcalc()
+fig,ax=plt.subplots()
+ax.plot(system.wl_list,np.log10(g2list))
