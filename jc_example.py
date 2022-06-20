@@ -15,12 +15,12 @@ wc = wa = 0 # cavity and atom frequency
 g  = 1    # coupling strength
 kappa = g            # cavity dissipation rate
 gamma = 0           # atom dissipation rate
-gamma_d = 0.1*kappa
+gamma_d = 0*kappa
 LAMBDA = 0
 omega=0.01*g
-
 system = t.JC(N, g, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega)
-Hlist = system.hamiltonian(accuracy=300)
+Hlist = system.hamiltonian(100,0,1)
+qutip.settings.has_mkl = False
 #print(H)
 c_ops = system.collapse()
 

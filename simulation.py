@@ -34,19 +34,28 @@ class JC:
         self.sm = qt.tensor(qt.operators.qeye(self.N),qt.operators.destroy(2))
         self.smdag = self.sm.dag()
         
-    def hamiltonian(self, accuracy=0):
+    def hamiltonian(self, accuracy=0, start=0, end=0):
         #constructing hamiltonian in RWA
-        self.H = self.wc*self.adag*self.a + self.wa*self.smdag*self.sm + self.g*(self.adag*self.sm + self.a*self.smdag)
+        self.accuracy = accuracy
+        self.start = start
+        self.end = end
+        self.H = self.wc*self.adag*self.a + self.wa*self.smdag*self.sm + self.g*(self.adag*self.sm + self.a*self.smdag) 
         
         if self.omega==0:
             return self.H
         elif self.omega!=0:
-            if accuracy ==0:
-                print("ERROR: set granularity>0")
-                pass
+            if accuracy==0:
+                self.H = self.H + self.omega*(self.a + self.adag)
             else:
+                if self.start==0 and self.end==0:
+                    self.start = -np.pi*self.g + self.wc
+                    self.end = np.pi*self.g + self.wc
+                else:
+                    print(self.start)
+                    print(self.end)
+                    pass
                 self.V = self.omega*(self.a + self.adag)
-                self.wl_list = np.linspace(-1*np.pi*self.g + self.wc, 1*np.pi*self.g + self.wc, accuracy)
+                self.wl_list = np.linspace(self.start + self.wc, self.end + self.wc, accuracy)
                 self.Htot = np.empty([accuracy],dtype=object)
                 for i in range(accuracy):
                     self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a - self.wl_list[i]*self.smdag*self.sm
@@ -97,22 +106,28 @@ class MultiLevel:
             for m in range(self.D):
                 self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
         
-    def hamiltonian(self, accuracy=0):
+    def hamiltonian(self, accuracy=0, start=0, end=0):
         #constructing hamiltonian in RWA
         self.H = self.wc*self.adag*self.a + sum([(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) \
             + sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
-        
+        self.accuracy = accuracy
+        self.start = start
+        self.end = end
         if self.omega==0:
             return self.H
         elif self.omega!=0:
-            if accuracy==0:
-                print("ERROR: set granularity>0")
-                pass
+            if self.accuracy==0:
+                self.H = self.H + self.omega*(self.a + self.adag)
             else:
+                if self.start==0 and self.end==0:
+                    self.start = -np.pi*self.geff + self.wc
+                    self.end = np.pi*self.geff + self.wc
+                else:
+                    pass
                 self.V = self.omega*(self.a + self.adag)
-                self.wl_list = np.linspace(-1*np.pi*self.geff + self.wc, 1*np.pi*self.geff + self.wc, accuracy)
-                self.Htot = np.empty([accuracy],dtype=object)
-                for i in range(accuracy):
+                self.wl_list = np.linspace(self.start + self.wc, self.end +self.wc, self.accuracy)
+                self.Htot = np.empty([self.accuracy],dtype=object)
+                for i in range(self.accuracy):
                     self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a \
                         - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)])
                 return self.Htot
@@ -133,3 +148,24 @@ class MultiLevel:
         for i in range(len(self.wl_list)):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
         return self.g2list
+    
+    def ss_dm(self, driving=False):
+        if driving == False:
+            self.ss_dm = qt.steadystate(self.H,self.c_ops)
+            return self.ss_dm
+        elif driving==True:
+            self.ss_dm = np.empty([self.accuracy],dtype=object)
+            for i in range(self.accuracy):
+                self.ss_dm[i] = qt.steadystate(self.Htot[i], self.c_ops)
+            return self.ss_dm
+        
+    def darkstate_proportion(self, driving=False):
+        self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)])
+        if driving == False:
+            self.pdark = 1-(self.ss_dm*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr()
+            return np.real(self.pdark)
+        elif driving == True:
+            self.pdark = np.empty([self.accuracy],dtype=object)
+            for i in range(self.accuracy):
+                self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
+            return self.pdark
