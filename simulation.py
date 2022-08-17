@@ -17,7 +17,7 @@ def vector2(d):
 
 class JC:
     
-    def __init__(self, N, g, wc, wa, kappa, gamma, gamma_d, theta, omega=0):
+    def __init__(self, N, g, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0):
         #system variables
         self.N = N
         self.g = g
@@ -28,6 +28,7 @@ class JC:
         self.gamma_d = gamma_d
         self.theta = theta
         self.omega = omega
+        self.zeta=zeta
         #system operators
         self.a = qt.tensor(qt.operators.destroy(self.N),qt.operators.qeye(2))
         self.adag = self.a.dag()
@@ -54,7 +55,7 @@ class JC:
                     print(self.start)
                     print(self.end)
                     pass
-                self.V = self.omega*(self.a + self.adag)
+                self.V = self.omega*(self.a + self.adag)+self.zeta*(self.sm - self.smdag)
                 self.wl_list = np.linspace(self.start + self.wc, self.end + self.wc, accuracy)
                 self.Htot = np.empty([accuracy],dtype=object)
                 for i in range(accuracy):

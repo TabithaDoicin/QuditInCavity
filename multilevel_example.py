@@ -23,7 +23,7 @@ LAMBDA =0*kappa
 omega = 0.01*geff
 qutip.settings.has_mkl = False
 system = t.MultiLevel(N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega)
-Hlist = system.hamiltonian(1000,0.025,0.035)
+Hlist = system.hamiltonian(1000,0,0.3)
 c_ops = system.collapse()
 
 #wlist = np.linspace(-1*np.pi *system.geff + system.wc, 1*np.pi *system.geff + system.wc, 600)
