@@ -81,19 +81,20 @@ class JC:
         
 class MultiLevel:
     
-    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0):
+    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0):
         #system variables
-        self.N = N
-        self.D = D
-        self.geff = geff
-        self.ep = ep
-        self.wc = wc
-        self.wa = wa
-        self.kappa = kappa
-        self.gamma = gamma
-        self.gamma_d = gamma_d
-        self.theta = theta
-        self.omega = omega
+        self.N = N #max cavity population
+        self.D = D #atomic levels
+        self.geff = geff #strength of atom cavity interaction
+        self.ep = ep #atomic energy level spacing
+        self.wc = wc #cavity frequency
+        self.wa = wa #atom frequency
+        self.kappa = kappa #cavity decay
+        self.gamma = gamma #radiative devay
+        self.gamma_d = gamma_d #dephasing
+        self.theta = theta #pumping
+        self.omega = omega #cavity driving
+        self.zeta = zeta #atomic driving
         #multilevel energies
         self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
         self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
@@ -107,31 +108,45 @@ class MultiLevel:
             for m in range(self.D):
                 self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
         
-    def hamiltonian(self, accuracy=0, start=0, end=0):
+    def hamiltonian_nodriving(self):
         #constructing hamiltonian in RWA
         self.H = self.wc*self.adag*self.a + sum([(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) \
             + sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
-        self.accuracy = accuracy
-        self.start = start
-        self.end = end
-        if self.omega==0:
+        
+        return self.H
+    
+        
+    def hamiltonian_withdriving(self):
+        self.V = self.omega*(self.a + self.adag) + self.zeta*(sum([self.vec[0,n] + self.vec[n,0] for n in range(1,self.D)]))
+        self.wl_list = np.linspace(self.start + self.wc, self.end +self.wc, self.accuracy)
+        self.Htot = np.empty([self.accuracy],dtype=object)
+        for i in range(self.accuracy):
+            self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a \
+                - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)])
+        return self.Htot
+        
+    def hamiltonian(self, accuracy=0, start=0, end=0):
+        if self.omega==0 and self.zeta==0:
+            print("hamiltonian_nodriving working...")
+            return self.hamiltonian_nodriving()
+        elif accuracy ==0:
+            print("hamiltonian_withdriving working... (single)")
+            self.H = self.hamiltonian_nodriving() + self.omega*(self.a + self.adag) + self.zeta*(sum([self.vec[0,n] + self.vec[n,0] for n in range(1,self.D)]))
             return self.H
-        elif self.omega!=0:
-            if self.accuracy==0:
-                self.H = self.H + self.omega*(self.a + self.adag)
+        else:
+            print("hamiltonian_withdriving working... (multiple)")
+            if start==0 and end==0:
+                start = -np.pi*self.geff + self.wc
+                end = np.pi*self.geff + self.wc
+                print("automatic driving bounds used")
             else:
-                if self.start==0 and self.end==0:
-                    self.start = -np.pi*self.geff + self.wc
-                    self.end = np.pi*self.geff + self.wc
-                else:
-                    pass
-                self.V = self.omega*(self.a + self.adag)
-                self.wl_list = np.linspace(self.start + self.wc, self.end +self.wc, self.accuracy)
-                self.Htot = np.empty([self.accuracy],dtype=object)
-                for i in range(self.accuracy):
-                    self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a \
-                        - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)])
-                return self.Htot
+                print("manual driving bounds used")
+                pass
+            self.start = start
+            self.end = end
+            self.accuracy = accuracy
+            self.hamiltonian_nodriving()
+            return self.hamiltonian_withdriving()
     
     def collapse(self):
         #collapse operators
@@ -150,7 +165,7 @@ class MultiLevel:
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
         return self.g2list
     
-    def ss_dm(self, driving=False):
+    def ss_dm(self, driving=False): #steady state density matrix
         if driving == False:
             self.ss_dm = qt.steadystate(self.H,self.c_ops)
             return self.ss_dm
