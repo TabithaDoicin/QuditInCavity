@@ -112,10 +112,9 @@ class MultiLevel:
         #constructing hamiltonian in RWA
         self.H = self.wc*self.adag*self.a + sum([(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) \
             + sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
-        
         return self.H
-    
-        
+
+
     def hamiltonian_withdriving(self):
         self.V = self.omega*(self.a + self.adag) + self.zeta*(sum([self.vec[0,n] + self.vec[n,0] for n in range(1,self.D)]))
         self.wl_list = np.linspace(self.start + self.wc, self.end +self.wc, self.accuracy)
@@ -130,7 +129,7 @@ class MultiLevel:
             print("hamiltonian_nodriving working...")
             return self.hamiltonian_nodriving()
         elif accuracy ==0:
-            print("hamiltonian_withdriving working... (single)")
+            print("hamiltonian_withdriving working... (single), confusion with take away laser frequency")
             self.H = self.hamiltonian_nodriving() + self.omega*(self.a + self.adag) + self.zeta*(sum([self.vec[0,n] + self.vec[n,0] for n in range(1,self.D)]))
             return self.H
         else:
