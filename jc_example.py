@@ -10,17 +10,17 @@ from qutip import *
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 5                 # number of cavity fock states
-wc = wa = 1 # cavity and atom frequency
+N = 4                 # number of cavity fock states
+wc = wa = 0 # cavity and atom frequency
 g  = 1    # coupling strength
-kappa = g            # cavity dissipation rate
+kappa = 0.05*g            # cavity dissipation rate
 gamma = 0           # atom dissipation rate
-gamma_d = kappa
+gamma_d = 0.2*kappa
 LAMBDA = 0
-omega= 0.0000000000001*g
-zeta = -g*g
+omega= 0.01*g
+zeta = 0
 system = t.JC(N, g, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega,zeta)
-Hlist = system.hamiltonian(100 )
+Hlist = system.hamiltonian(300)
 qutip.settings.has_mkl = False
 #print(H)
 c_ops = system.collapse()
