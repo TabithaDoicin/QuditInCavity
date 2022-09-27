@@ -19,12 +19,19 @@ wa = 0 # cavity and atom frequency
 wc = 0
 kappa = 0.05*geff        # cavity dissipation rate
 gamma = 0        # atom dissipation rate
-gamma_d = 0.2*kappa
+gamma_d = 0*kappa
 LAMBDA =0*kappa
-omega = 0*geff
-zeta = 0.01*geff
 
-system = t.MultiLevel(N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega, zeta)
+omega = 0.02*geff
+alpha= 0
+zeta=0
+
+zeta = -2j*omega/kappa*geff
+omega=0
+alpha=0#+2j*omega/kappa
+
+
+system = t.MultiLevel(N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega, zeta, alpha)
 Hlist = system.hamiltonian(300)
 c_ops = system.collapse()
 
@@ -43,11 +50,12 @@ ax.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
 plt.title(r'$g^{(2)}(0)$ vs detuning for parameters: N=' + str(N) + r', D=' + str(D) + r', $g_{eff}$=' + str(geff)\
           + r', $\epsilon$=' + str(ep)+ r', $\omega_a$=' + str(wa) + r', $\omega_c$=' + str(wc) +',\n' r'$\kappa$=' + str(kappa)\
           + r',  $ \gamma$=' + str(gamma)+ r', $\gamma_d$=' + str(round(gamma_d,2)) + r', $\Lambda$=' + str(LAMBDA) + r', $\Omega$=' + str(omega) + r', $\zeta$='+str(zeta), fontsize='small')
-system.ss_dm(driving=True)
-darkstates = system.darkstate_proportion(driving=True)
 
-fig2,ax2 = plt.subplots()
-ax2.plot(system.wl_list,darkstates)
-ax2.set_ylabel(r'$p_{dark}$')
-ax2.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
-plt.title(r'corresponding dark state proportions...', fontsize='small')
+# system.ss_dm(driving=True)
+# darkstates = system.darkstate_proportion(driving=True)
+
+# fig2,ax2 = plt.subplots()
+# ax2.plot(system.wl_list,darkstates)
+# ax2.set_ylabel(r'$p_{dark}$')
+# ax2.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
+# plt.title(r'corresponding dark state proportions...', fontsize='small')

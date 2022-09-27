@@ -15,7 +15,7 @@ wc = wa = 0 # cavity and atom frequency
 g  = 1    # coupling strength
 kappa = 0.05*g            # cavity dissipation rate
 gamma = 0           # atom dissipation rate
-gamma_d = 0.2*kappa
+gamma_d = 0*kappa
 LAMBDA = 0
 omega= 0.01*g
 zeta = 0

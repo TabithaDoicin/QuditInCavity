@@ -8,6 +8,7 @@ Created on Wed Jun 1 09:00:02 2022
 import numpy as np
 import qutip as qt
 
+
 def vector2(d):
     out = np.empty([d,d],dtype=object)
     for n in range(d):
@@ -28,7 +29,7 @@ class JC:
         self.gamma_d = gamma_d
         self.theta = theta
         self.omega = omega
-        self.zeta=zeta
+        self.zeta = zeta
         #system operators
         self.a = qt.tensor(qt.operators.destroy(self.N),qt.operators.qeye(2))
         self.adag = self.a.dag()
@@ -81,7 +82,7 @@ class JC:
         
 class MultiLevel:
     
-    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0):
+    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0, displacement = 0):
         #system variables
         self.N = N #max cavity population
         self.D = D #atomic levels
@@ -94,20 +95,32 @@ class MultiLevel:
         self.gamma_d = gamma_d #dephasing
         self.theta = theta #pumping
         self.omega = omega #cavity driving
-        self.zeta = zeta #atomic driving
+        
+        self.zeta1 = zeta #atomic driving first
+        self.zeta2 = zeta.conjugate() #atomic driving second 
+        
+        self.alpha = displacement
         #multilevel energies
         self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
-        self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
-        #system operators - cavity
-        self.a  = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
+        
+        if self.D == 2:
+            self.delta = [0]
+        else:
+            self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
+            
+        #system operators - cavity - displaced automatically by alpha
+        self.a  = qt.tensor(qt.displace(N,self.alpha).dag()*qt.operators.destroy(self.N)*qt.displace(N,self.alpha), qt.operators.qeye(self.D))
         self.adag = self.a.dag()
+        
+        self.aori  = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
+        self.adagori = self.aori.dag()
         #system operators - atom
         self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
         self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators
         for n in range(self.D):
             for m in range(self.D):
                 self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
-        
+    
     def hamiltonian_nodriving(self):
         #constructing hamiltonian in RWA
         self.H = self.wc*self.adag*self.a + sum([(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) \
@@ -116,7 +129,7 @@ class MultiLevel:
 
 
     def hamiltonian_withdriving(self):
-        self.V = self.omega*(self.a + self.adag) + self.zeta*(sum([self.vec[0,n] + self.vec[n,0] for n in range(1,self.D)]))
+        self.V = self.omega*(self.a + self.adag) + (sum([self.zeta2*self.vec[0,n] + self.zeta1*self.vec[n,0] for n in range(1,self.D)]))
         self.wl_list = np.linspace(self.start + self.wc, self.end +self.wc, self.accuracy)
         self.Htot = np.empty([self.accuracy],dtype=object)
         for i in range(self.accuracy):
@@ -125,12 +138,12 @@ class MultiLevel:
         return self.Htot
         
     def hamiltonian(self, accuracy=0, start=0, end=0):
-        if self.omega==0 and self.zeta==0:
+        if self.omega==0 and self.zeta1==0:
             print("hamiltonian_nodriving working...")
             return self.hamiltonian_nodriving()
         elif accuracy ==0:
             print("hamiltonian_withdriving working... (single), confusion with take away laser frequency")
-            self.H = self.hamiltonian_nodriving() + self.omega*(self.a + self.adag) + self.zeta*(sum([self.vec[0,n] + self.vec[n,0] for n in range(1,self.D)]))
+            self.H = self.hamiltonian_nodriving() + self.omega*(self.a + self.adag) + (sum([self.zeta2*self.vec[0,n] + self.zeta1*self.vec[n,0] for n in range(1,self.D)]))
             return self.H
         else:
             print("hamiltonian_withdriving working... (multiple)")
