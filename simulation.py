@@ -8,7 +8,6 @@ Created on Wed Jun 1 09:00:02 2022
 import numpy as np
 import qutip as qt
 
-
 def vector2(d):
     out = np.empty([d,d],dtype=object)
     for n in range(d):
@@ -134,7 +133,7 @@ class MultiLevel:
         self.Htot = np.empty([self.accuracy],dtype=object)
         for i in range(self.accuracy):
             self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a \
-                - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)])
+                - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)]) #needs to be original as done after disp transform
         return self.Htot
         
     def hamiltonian(self, accuracy=0, start=0, end=0):
@@ -142,7 +141,7 @@ class MultiLevel:
             print("hamiltonian_nodriving working...")
             return self.hamiltonian_nodriving()
         elif accuracy ==0:
-            print("hamiltonian_withdriving working... (single), confusion with take away laser frequency")
+            print("hamiltonian_withdriving working... (single), confusion with take away laser frequency, automatically 0")
             self.H = self.hamiltonian_nodriving() + self.omega*(self.a + self.adag) + (sum([self.zeta2*self.vec[0,n] + self.zeta1*self.vec[n,0] for n in range(1,self.D)]))
             return self.H
         else:
@@ -171,10 +170,11 @@ class MultiLevel:
         
         return self.c_ops
     
-    def g2listcalc(self):
+    def g2listcalc(self,operator):
         self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
         for i in range(len(self.wl_list)):
-            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
+            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
+            print(i/len(self.wl_list))
         return self.g2list
     
     def ss_dm(self, driving=False): #steady state density matrix
