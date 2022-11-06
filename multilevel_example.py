@@ -14,9 +14,9 @@ import simulation as t
 
 
 N = 3         # number of cavity fock states
-D = 7          #number of atomic states?
+D = 4          #number of atomic states
 geff = 1
-ep=0.05*geff
+ep=0.1*geff
 wa = 0 # cavity and atom frequency
 wc = 0
 kappa = 1*geff        # cavity dissipation rate
@@ -32,11 +32,11 @@ system = t.MultiLevel(N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, LAMBDA, ome
 H = system.hamiltonian()
 c_ops = system.collapse()
 
-wlist = np.linspace(-1*np.pi *system.geff + system.wc, 1*np.pi *system.geff + system.wc, 5000)
+wlist = np.linspace(-1*np.pi *system.geff + system.wc, 1*np.pi *system.geff + system.wc, 10000)
 spec = spectrum(H, wlist, c_ops, system.adag, system.a)
 
 fig, ax = plt.subplots()
-ax.plot(wlist, np.log10(spec))
+ax.plot(wlist, np.log10(spec), linewidth = 0.9)
 
 # g2list = system.g2listcalc()
 # fig,ax=plt.subplots()
