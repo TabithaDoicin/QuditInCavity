@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 
+
 N = 3         # number of cavity fock states
 D = 7          #number of atomic states?
 geff = 1
@@ -60,6 +61,17 @@ ax.plot(wlist, np.log10(spec))
 # ax.set_ylabel(r'$S_a(\omega)$')
 # ax.set_xlabel(r'$(\omega-\omega_0)/g_{eff}$')
 # plt.title(r'$S_a(\omega)$ vs detuning for parameters: N=' + str(N) + r', D=' + str(D) + r', $g_{eff}$=' + str(geff)\
+#           + r', $\epsilon$=' + str(ep)+ r', $\omega_a$=' + str(wa) + r', $\omega_c$=' + str(wc) +',\n' r'$\kappa$=' + str(kappa)\
+#           + r',  $ \gamma$=' + str(gamma)+ r', $\gamma_d$=' + str(round(gamma_d,2)) + r', $\Lambda$=' + str(LAMBDA) + r', $\Omega$=' + str(omega) + r', $\zeta$='+str(zeta) + r', $\alpha$='+str(alpha), fontsize='small')
+
+
+# g2list = system.g2listcalc(system.a)
+# fig,ax=plt.subplots()
+# ax.plot(system.wl_list,g2list)
+# ax.set_yscale('log')
+# ax.set_ylabel(r'$g^{(2)}(0)$')
+# ax.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
+# plt.title(r'$g^{(2)}(0)$ vs detuning for parameters: N=' + str(N) + r', D=' + str(D) + r', $g_{eff}$=' + str(geff)\
 #           + r', $\epsilon$=' + str(ep)+ r', $\omega_a$=' + str(wa) + r', $\omega_c$=' + str(wc) +',\n' r'$\kappa$=' + str(kappa)\
 #           + r',  $ \gamma$=' + str(gamma)+ r', $\gamma_d$=' + str(round(gamma_d,2)) + r', $\Lambda$=' + str(LAMBDA) + r', $\Omega$=' + str(omega) + r', $\zeta$='+str(zeta) + r', $\alpha$='+str(alpha), fontsize='small')
 
