@@ -31,7 +31,7 @@ def main():
   H = system.hamiltonian(50)
   c_ops = system.collapse()
 
-  g2list = system.g2listcalc(system.a)
+  g2list = system.g2listcalcmp(system.a)
   #print(g2list)
   fig,ax=plt.subplots()
   ax.plot(system.wl_list,g2list)

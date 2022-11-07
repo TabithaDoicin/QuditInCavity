@@ -173,7 +173,13 @@ class MultiLevel:
         
         return self.c_ops
 
-    def g2listcalc(self,operator):
+    def g2listcalc(self):
+        self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
+        for i in range(len(self.wl_list)):
+            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
+        return self.g2list
+
+    def g2listcalcmp(self,operator):
       num_sims = len(self.Htot)
       num_threads = mp.cpu_count() if mp.cpu_count()<num_sims else num_sims
       manager = mp.Manager()
