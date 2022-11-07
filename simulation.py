@@ -7,6 +7,9 @@ Created on Wed Jun 1 09:00:02 2022
 
 import numpy as np
 import qutip as qt
+import multiprocess as mp
+from multiprocess import Process, Queue
+
 
 def vector2(d):
     out = np.empty([d,d],dtype=object)
@@ -169,13 +172,57 @@ class MultiLevel:
         self.c_ops = self.coop_cavity_decay + self.coop_radiative_decay + self.coop_dephasing + self.coop_pumping
         
         return self.c_ops
-    
+
     def g2listcalc(self,operator):
         self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
         for i in range(len(self.wl_list)):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
             print(i/len(self.wl_list))
         return self.g2list
+
+    def g2listcalcmp(self,operator):
+      num_sims = len(self.Htot)
+      num_threads = mp.cpu_count() if mp.cpu_count()<num_sims else num_sims
+      manager = mp.Manager()
+      return_dict = manager.dict()
+      jobs = []
+
+      def g2listcalc_helper(start,end,procnum) -> None:
+        ## TODO: refactor this into multiple functions
+        self.g2list_temp = np.empty([end-start],dtype=np.float64)
+        for s in range(start,end):
+          self.g2list_temp[s-start] = np.real(qt.coherence_function_g2(self.Htot[s], None, [0], self.c_ops, operator)[0][0])
+
+          print(f"Process #{procnum}: {int(((s-start)/(end-start))*100)}% complete")
+
+        print(f"Process #{procnum}: 100% complete")
+
+        return_dict[procnum] = self.g2list_temp
+
+      ## Create processes and dynamically allocate simulations
+      for i in range(num_threads):
+        start_index = 0 if i==0 else int(i/num_threads * num_sims)
+        end_index = num_sims if i+1 == num_threads else int((i+1)/num_threads * num_sims)
+
+        p = Process(target=g2listcalc_helper, args=[start_index,end_index,i])
+        jobs.append(p)
+        p.start()
+
+      for p in jobs: # wait for all jobs to finish before continuing
+        p.join()
+
+
+      ## Stitch values returned from each process back together into a single array
+      self.g2list = np.empty([num_sims],dtype=np.float64)
+      index = 0
+      for i in range(num_threads):
+        for j in return_dict[i]:
+          self.g2list[index] = j
+          index+=1
+        
+
+      return self.g2list
+
     
     def ss_dm(self, driving=False): #steady state density matrix
         if driving == False:
