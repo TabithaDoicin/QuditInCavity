@@ -65,4 +65,5 @@ def main():
   #           + r',  $ \gamma$=' + str(gamma)+ r', $\gamma_d$=' + str(round(gamma_d,2)) + r', $\Lambda$=' + str(LAMBDA) + r', $\Omega$=' + str(omega) + r', $\zeta$='+str(zeta) + r', $\alpha$='+str(alpha), fontsize='small')
 
 if __name__ == "__main__":
+  __spec__ = None
   main()
