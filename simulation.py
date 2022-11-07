@@ -201,7 +201,9 @@ class MultiLevel:
 
         for p in process_list: # halt funtion until all processes finish
           print(p) 
+          p.join()
             p.join() 
+          p.join()
 
         print("done")
 
