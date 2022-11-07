@@ -8,6 +8,7 @@ Created on Wed Jun 1 09:00:02 2022
 import numpy as np
 import qutip as qt
 import multiprocessing
+import time
 
 
 def vector2(d):
@@ -177,19 +178,21 @@ class MultiLevel:
         self.g2list = np.empty([num_sims],dtype=np.float64)
         num_threads = 8 #multiprocessing.cpu_count()
 
-        def g2listcalc_helper(start, end):
-          for i in range(start,end):
+        def g2listcalc_helper(start, end) -> None:
+          for i in range(int(start),int(end)):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
 
             print(str(i/num_sims)+" this is broke, sorry :(") # needs reworked for multiprocessing
 
         for i in range(num_threads):
-          start_index = 0 if i==0 else (i/num_threads * num_sims)
-          end_index = num_sims if i+1 == num_threads else (i+1/num_threads * num_sims)
+          start_index = 0 if i==0 else int(i/num_threads * num_sims)
+          end_index = num_sims if i+1 == num_threads else int(i+1/num_threads * num_sims)
         
           new_process = multiprocessing.Process(target=g2listcalc_helper(start_index, end_index))
 
           new_process.start()
+          time.sleep(1)
+
 
           for p in multiprocessing.active_children(): # halt funtion until all processes finish
             p.join() 
