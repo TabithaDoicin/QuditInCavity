@@ -16,32 +16,28 @@ import simulation as t
 N = 3         # number of cavity fock states
 D = 4          #number of atomic states
 geff = 1
-ep=0.1*geff
+ep=0.3*geff
 wa = 0 # cavity and atom frequency
 wc = 0
-kappa = 1*geff        # cavity dissipation rate
+kappa = 0.05*geff        # cavity dissipation rate
 gamma = 0        # atom dissipation rate
-gamma_d = 0*kappa
-LAMBDA =0.01*kappa
+gamma_d = 0.2*kappa
+LAMBDA =0.02*kappa
 
-omega=0*geff
+omega=0.01*kappa
 zeta=0
 alpha=0
 
 system = t.MultiLevel(N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega, zeta, alpha)
-H = system.hamiltonian()
+H = system.hamiltonian(50)
 c_ops = system.collapse()
 
-wlist = np.linspace(-1*np.pi *system.geff + system.wc, 1*np.pi *system.geff + system.wc, 10000)
-spec = spectrum(H, wlist, c_ops, system.adag, system.a)
+g2list = system.g2listcalc(system.a)
 
-fig, ax = plt.subplots()
-ax.plot(wlist, np.log10(spec), linewidth = 0.9)
-
-# g2list = system.g2listcalc()
-# fig,ax=plt.subplots()
-# ax.plot(system.wl_list,g2list)
-# ax.set_yscale('log')
+fig,ax=plt.subplots()
+ax.plot(system.wl_list,g2list)
+ax.set_yscale('log')
+plt.savefig('foo.png')
 # ax.set_ylabel(r'$g^{(2)}(0)$')
 # ax.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
 # plt.title(r'$g^{(2)}(0)$ vs detuning for parameters: N=' + str(N) + r', D=' + str(D) + r', $g_{eff}$=' + str(geff)\
