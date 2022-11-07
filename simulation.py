@@ -7,7 +7,8 @@ Created on Wed Jun 1 09:00:02 2022
 
 import numpy as np
 import qutip as qt
-import multiprocess
+import multiprocess as mp
+from multiprocess import Process, Queue
 
 
 def vector2(d):
@@ -171,34 +172,49 @@ class MultiLevel:
         self.c_ops = self.coop_cavity_decay + self.coop_radiative_decay + self.coop_dephasing + self.coop_pumping
         
         return self.c_ops
-    
+
     def g2listcalc(self,operator):
-        num_sims = len(self.Htot)
-        self.g2list = np.empty([num_sims],dtype=np.float64)
-        num_threads = multiprocess.cpu_count()
+      num_sims = len(self.Htot)
+      num_threads = mp.cpu_count() if mp.cpu_count()<num_sims else num_sims
+      manager = mp.Manager()
+      return_dict = manager.dict()
+      jobs = []
 
-        def g2listcalc_helper(start, end) -> None:
-          for i in range(start,end):
-            self.g2list[i] = np.real(qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0])
+      def g2listcalc_helper(start,end,procnum) -> None:
+        ## TODO: refactor this into multiple functions
+        self.g2list_temp = np.empty([end-start],dtype=np.float64)
+        for s in range(start,end):
+          self.g2list_temp[s-start] = np.real(qt.coherence_function_g2(self.Htot[s], None, [0], self.c_ops, operator)[0][0])
 
-            # print(i/num_sims) # needs reworked for multiprocessing
+          print(f"Process #{procnum}: {int(((s-start)/(end-start))*100)}% complete")
 
-        process_list=[]
+        print(f"Process #{procnum}: 100% complete")
 
-        for i in range(num_threads):
-          start_index = 0 if i==0 else int(i/num_threads * num_sims)
-          end_index = num_sims if i+1 == num_threads else int((i+1)/num_threads * num_sims)
+        return_dict[procnum] = self.g2list_temp
 
-          new_process = multiprocess.Process(target=g2listcalc_helper, args=[start_index, end_index])
-          process_list.append(new_process)
-          
-          new_process.start()
+      ## Create processes and dynamically allocate simulations
+      for i in range(num_threads):
+        start_index = 0 if i==0 else int(i/num_threads * num_sims)
+        end_index = num_sims if i+1 == num_threads else int((i+1)/num_threads * num_sims)
 
-        for p in process_list: # halt funtion until all processes finish
-          p.join()
-          
+        p = Process(target=g2listcalc_helper, args=[start_index,end_index,i])
+        jobs.append(p)
+        p.start()
 
-        return self.g2list
+      for p in jobs: # wait for all jobs to finish before continuing
+        p.join()
+
+
+      ## Stitch values returned from each process back together into a single array
+      self.g2list = np.empty([num_sims],dtype=np.float64)
+      index = 0
+      for i in range(num_threads):
+        for j in return_dict[i]:
+          self.g2list[index] = j
+          index+=1
+        
+
+      return self.g2list
 
     
     def ss_dm(self, driving=False): #steady state density matrix
