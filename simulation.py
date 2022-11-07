@@ -173,10 +173,11 @@ class MultiLevel:
         
         return self.c_ops
 
-    def g2listcalc(self):
+    def g2listcalc(self,operator):
         self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
         for i in range(len(self.wl_list)):
-            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, self.a)[0][0]
+            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
+            print(i/len(self.wl_list))
         return self.g2list
 
     def g2listcalcmp(self,operator):
