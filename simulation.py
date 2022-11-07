@@ -7,7 +7,7 @@ Created on Wed Jun 1 09:00:02 2022
 
 import numpy as np
 import qutip as qt
-import multiprocessing
+import multiprocess
 import time
 
 
@@ -176,13 +176,13 @@ class MultiLevel:
     def g2listcalc(self,operator):
         num_sims = len(self.Htot)
         self.g2list = np.empty([num_sims],dtype=np.float64)
-        num_threads = multiprocessing.cpu_count()
+        num_threads = multiprocess.cpu_count()
 
         def g2listcalc_helper(start, end) -> None:
           for i in range(start,end):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
 
-            print(str(i/num_sims)+" this is broke, sorry :(") # needs reworked for multiprocessing
+            print(f'{i} and {i/num_sims}') # needs reworked for multiprocessing
 
         process_list=[]
 
@@ -190,22 +190,15 @@ class MultiLevel:
           start_index = 0 if i==0 else int(i/num_threads * num_sims)
           end_index = num_sims if i+1 == num_threads else int((i+1)/num_threads * num_sims)
 
-        
-          new_process = multiprocessing.Process(target=g2listcalc_helper(start_index, end_index))
-
-
+          new_process = multiprocess.Process(target=g2listcalc_helper, args=[start_index, end_index])
           process_list.append(new_process)
+          
           new_process.start()
-          time.sleep(1)
-
+          #time.sleep(1)
 
         for p in process_list: # halt funtion until all processes finish
-          print(p) 
           p.join()
-            p.join() 
-          p.join()
-
-        print("done")
+          
 
         return self.g2list
 
