@@ -179,7 +179,7 @@ class MultiLevel:
         num_threads = 8 #multiprocessing.cpu_count()
 
         def g2listcalc_helper(start, end) -> None:
-          for i in range(int(start),int(end)):
+          for i in range(start,end):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
 
             print(str(i/num_sims)+" this is broke, sorry :(") # needs reworked for multiprocessing
