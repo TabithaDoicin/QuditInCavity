@@ -11,7 +11,7 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-
+plt.close()
 
 N = 3         # number of cavity fock states
 D1 = 2          #number of atomic states
@@ -21,10 +21,10 @@ geff = 1
 ep=0.4*geff
 wa = 0 # cavity and atom frequency
 wc = 0
-kappa = 1*geff        # cavity dissipation rate
+kappa = 0.05*geff        # cavity dissipation rate
 gamma = 0        # atom dissipation rate
-gamma_d = 0*kappa
-LAMBDA =0.01*kappa
+gamma_d = 1*kappa
+LAMBDA =0.02*kappa
 
 omega=0
 zeta=0
@@ -59,14 +59,29 @@ spec3 = 1/(1-pdark3) * spectrum(H3, wlist3, c_ops3, system3.adag, system3.a)
 
 
 fig, ax = plt.subplots()
-ax.plot(wlist3, spec3, linewidth = 1, color = 'magenta')
-ax.plot(wlist2, spec2, linewidth = 0.9, ls = '--', color = 'darkblue')
-ax.plot(wlist1, spec1, linewidth = 0.9, ls = '--', color = 'darkred')
+ax.plot(wlist3, spec3, linewidth = 1.1, color = 'magenta')
+ax.plot(wlist2, spec2, linewidth = 1, ls = '--', color = 'darkblue')
+ax.plot(wlist1, spec1, linewidth = 1, ls = '--', color = 'darkred')
 
-plt.text(-0.62, 1.9e-4, r'$p_{dark} = $' + str(round(pdark3,3)), fontsize = 10, 
-         bbox = dict(boxstyle='roundtooth', fc="w", ec="magenta"))
-plt.text(-0.62, 0.8e-4, r'$p_{dark} = $' + str(round(pdark2,3)), fontsize = 10, 
-         bbox = dict(boxstyle='roundtooth', fc="w", ec="darkblue"))
+
+left, width = 0, 1
+bottom, height = 0, 1
+right = left + width
+top = bottom + height
+p = plt.Rectangle((left, bottom), width, height, fill=False)
+p.set_transform(ax.transAxes)
+p.set_clip_on(False)
+ax.add_patch(p)
+
+plt.rc('font', size=12)
+plt.rc('axes', labelsize=12)
+plt.rc('xtick', labelsize=12)
+plt.rc('ytick', labelsize=12)
+
+plt.text(0.5 * (left + right), 0.1, r'$p_{dark} = $' + str(round(pdark3,3)), fontsize = 14, 
+         bbox = dict(boxstyle='roundtooth', fc="w", ec="magenta"),horizontalalignment='center',verticalalignment='center',transform=ax.transAxes)
+plt.text(0.5 * (left + right), 0.2, r'$p_{dark} = $' + str(round(pdark2,3)), fontsize = 14, 
+         bbox = dict(boxstyle='roundtooth', fc="w", ec="darkblue"),horizontalalignment='center',verticalalignment='center',transform=ax.transAxes)
 
 ax.set_yscale('log')
 ax.set_ylabel(r'$S(\omega)$')

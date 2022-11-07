@@ -24,7 +24,7 @@ gamma = 0        # atom dissipation rate
 gamma_d = 0*kappa
 LAMBDA =0.01*kappa
 
-omega=0
+omega=0*geff
 zeta=0
 alpha=0
 
