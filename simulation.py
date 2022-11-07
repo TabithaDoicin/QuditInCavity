@@ -182,7 +182,7 @@ class MultiLevel:
           for i in range(start,end):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
 
-            print(f'{i} and {i/num_sims}') # needs reworked for multiprocessing
+            # print(i/num_sims) # needs reworked for multiprocessing
 
         process_list=[]
 
@@ -194,7 +194,6 @@ class MultiLevel:
           process_list.append(new_process)
           
           new_process.start()
-          #time.sleep(1)
 
         for p in process_list: # halt funtion until all processes finish
           p.join()
