@@ -184,18 +184,26 @@ class MultiLevel:
 
             print(str(i/num_sims)+" this is broke, sorry :(") # needs reworked for multiprocessing
 
+        process_list=[]
+
         for i in range(num_threads):
           start_index = 0 if i==0 else int(i/num_threads * num_sims)
-          end_index = num_sims if i+1 == num_threads else int(i+1/num_threads * num_sims)
+          end_index = num_sims if i+1 == num_threads else int((i+1)/num_threads * num_sims)
+
         
           new_process = multiprocessing.Process(target=g2listcalc_helper(start_index, end_index))
 
+
+          process_list.append(new_process)
           new_process.start()
           time.sleep(1)
 
 
-          for p in multiprocessing.active_children(): # halt funtion until all processes finish
+        for p in process_list: # halt funtion until all processes finish
+          print(p) 
             p.join() 
+
+        print("done")
 
         return self.g2list
 
