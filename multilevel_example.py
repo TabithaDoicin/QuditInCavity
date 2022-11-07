@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 def main():
-  N = 3         # number of cavity fock states
-  D = 4          #number of atomic states
+  N = 3             # number of cavity fock states
+  D = 4             #number of atomic states
   geff = 1
   ep=0.3*geff
-  wa = 0 # cavity and atom frequency
+  wa = 0            # cavity and atom frequency
   wc = 0
-  kappa = 0.05*geff        # cavity dissipation rate
-  gamma = 0        # atom dissipation rate
+  kappa = 0.05*geff # cavity dissipation rate
+  gamma = 0         # atom dissipation rate
   gamma_d = 0.2*kappa
   LAMBDA =0.02*kappa
 
