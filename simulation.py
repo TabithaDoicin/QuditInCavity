@@ -179,7 +179,7 @@ class MultiLevel:
 
         def g2listcalc_helper(start, end) -> None:
           for i in range(start,end):
-            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
+            self.g2list[i] = np.real(qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0])
 
             # print(i/num_sims) # needs reworked for multiprocessing
 
