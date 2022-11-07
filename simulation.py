@@ -8,7 +8,6 @@ Created on Wed Jun 1 09:00:02 2022
 import numpy as np
 import qutip as qt
 import multiprocess
-import time
 
 
 def vector2(d):
