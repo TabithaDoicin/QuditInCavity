@@ -176,7 +176,7 @@ class MultiLevel:
     def g2listcalc(self,operator):
         num_sims = len(self.Htot)
         self.g2list = np.empty([num_sims],dtype=np.float64)
-        num_threads = 8 #multiprocessing.cpu_count()
+        num_threads = multiprocessing.cpu_count()
 
         def g2listcalc_helper(start, end) -> None:
           for i in range(start,end):
