@@ -7,6 +7,8 @@ Created on Wed Jun 1 09:00:02 2022
 
 import numpy as np
 import qutip as qt
+import multiprocessing
+
 
 def vector2(d):
     out = np.empty([d,d],dtype=object)
@@ -171,11 +173,29 @@ class MultiLevel:
         return self.c_ops
     
     def g2listcalc(self,operator):
-        self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
-        for i in range(len(self.wl_list)):
+        num_sims = len(self.Htot)
+        self.g2list = np.empty([num_sims],dtype=np.float64)
+        num_threads = 8 #multiprocessing.cpu_count()
+
+        def g2listcalc_helper(start, end):
+          for i in range(start,end):
             self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
-            print(i/len(self.wl_list))
+
+            print(str(i/num_sims)+" this is broke, sorry :(") # needs reworked for multiprocessing
+
+        for i in range(num_threads):
+          start_index = 0 if i==0 else (i/num_threads * num_sims)
+          end_index = num_sims if i+1 == num_threads else (i+1/num_threads * num_sims)
+        
+          new_process = multiprocessing.Process(target=g2listcalc_helper(start_index, end_index))
+
+          new_process.start()
+
+          for p in multiprocessing.active_children(): # halt funtion until all processes finish
+            p.join() 
+
         return self.g2list
+
     
     def ss_dm(self, driving=False): #steady state density matrix
         if driving == False:
