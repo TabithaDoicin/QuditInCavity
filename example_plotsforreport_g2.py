@@ -42,9 +42,9 @@ c_ops1 = system1.collapse()
 c_ops2 = system2.collapse()
 c_ops3 = system3.collapse()
 
-g2list1 = system1.g2listcalcmp(system1.a)
-g2list2 = system2.g2listcalcmp(system2.a)
-g2list3 = system3.g2listcalcmp(system3.a)
+g2list1 = system1.g2listcalc(system1.a)
+g2list2 = system2.g2listcalc(system2.a)
+g2list3 = system3.g2listcalc(system3.a)
 
 fig, ax = plt.subplots()
 ax.plot(system3.wl_list, g2list3, linewidth = 1.1, color = 'magenta')
