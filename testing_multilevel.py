@@ -32,18 +32,15 @@ def main():
   c_ops = system.collapse()
 
   g2list = system.g2listcalcmp(system.a)
-  #print(g2list)
   fig,ax=plt.subplots()
   ax.plot(system.wl_list,g2list)
   ax.set_yscale('log')
-  plt.savefig('foo.png')
-  #ax.set_yscale('log')
-  #ax.set_ylabel(r'$g^{(2)}(0)$')
-  #ax.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
-  # plt.title(r'$g^{(2)}(0)$ vs detuning for parameters: N=' + str(N) + r', D=' + str(D) + r', $g_{eff}$=' + str(geff)\
-  #           + r', $\epsilon$=' + str(ep)+ r', $\omega_a$=' + str(wa) + r', $\omega_c$=' + str(wc) +',\n' r'$\kappa$=' + str(kappa)\
-  #           + r',  $ \gamma$=' + str(gamma)+ r', $\gamma_d$=' + str(round(gamma_d,2)) + r', $\Lambda$=' + str(LAMBDA) + r', $\Omega$=' + str(omega) + r', $\zeta$='+str(zeta), fontsize='small')
-
+  ax.set_ylabel(r'$g^{(2)}(0)$')
+  ax.set_xlabel(r'$(\omega_L-\omega_0)/g_{eff}$')
+  plt.title(r'$g^{(2)}(0)$ vs detuning for parameters: N=' + str(N) + r', D=' + str(D) + r', $g_{eff}$=' + str(geff)\
+            + r', $\epsilon$=' + str(ep)+ r', $\omega_a$=' + str(wa) + r', $\omega_c$=' + str(wc) +',\n' r'$\kappa$=' + str(kappa)\
+            + r',  $ \gamma$=' + str(gamma)+ r', $\gamma_d$=' + str(round(gamma_d,2)) + r', $\Lambda$=' + str(LAMBDA) + r', $\Omega$=' + str(omega) + r', $\zeta$='+str(zeta), fontsize='small')
+  
   # system = t.MultiLevel(N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, LAMBDA, omega, zeta, alpha)
   # H = system.hamiltonian(100)
   # c_ops = system.collapse()

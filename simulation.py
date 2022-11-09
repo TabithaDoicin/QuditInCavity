@@ -123,7 +123,7 @@ class MultiLevel:
       return_dict = manager.dict()
       jobs = []
 
-      def g2listcalc_helper(start,end,procnum) -> None:
+      def g2listcalcmp_helper(start,end,procnum) -> None:
         ## TODO: refactor this into multiple functions
         self.g2list_temp = np.empty([end-start],dtype=np.float64)
         for s in range(start,end):
@@ -140,7 +140,7 @@ class MultiLevel:
         start_index = 0 if i==0 else int(i/num_threads * num_sims)
         end_index = num_sims if i+1 == num_threads else int((i+1)/num_threads * num_sims)
 
-        p = Process(target=g2listcalc_helper, args=[start_index,end_index,i])
+        p = Process(target=g2listcalcmp_helper, args=[start_index,end_index,i])
         jobs.append(p)
         p.start()
 
