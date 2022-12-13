@@ -20,7 +20,7 @@ def vector2(d):
 
 class MultiLevel:
     
-    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0, displacement = 0):
+    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0, displacement = 0, rwa=True):
         #system variables
         self.N = N #max cavity population
         self.D = D #atomic levels
@@ -33,7 +33,7 @@ class MultiLevel:
         self.gamma_d = gamma_d #dephasing
         self.theta = theta #pumping
         self.omega = omega #cavity driving
-        
+        self.rwa = rwa
         self.zeta1 = zeta #atomic driving first
         self.zeta2 = zeta.conjugate() #atomic driving second 
         
@@ -58,14 +58,22 @@ class MultiLevel:
         for n in range(self.D):
             for m in range(self.D):
                 self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
-    
+        
+        self.n_op_tot = self.adag*self.a + sum([self.vec[n,0]*self.vec[0,n] for n in range(1,self.D)])
+        self.n_op = self.adag*self.a 
     def hamiltonian_nodriving(self):
-        #constructing hamiltonian in RWA
+        if self.rwa==True:
+            #constructing hamiltonian in RWA
+            self.H_i = sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
+        
+        elif self.rwa==False:
+            #constructing hamiltonian without RWA
+            self.H_i = sum([self.glist[n-1]*(self.adag + self.a)*(self.vec[0,n] + self.vec[n,0]) for n  in  range(1,self.D)])
+        
         self.H = self.wc*self.adag*self.a + sum([(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) \
-            + sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
+            + self.H_i
         return self.H
-
-
+    
     def hamiltonian_withdriving(self):
         self.V = self.omega*(self.a + self.adag) + (sum([self.zeta2*self.vec[0,n] + self.zeta1*self.vec[n,0] for n in range(1,self.D)]))
         self.wl_list = np.linspace(self.start + self.wc, self.end +self.wc, self.accuracy)
@@ -75,12 +83,18 @@ class MultiLevel:
                 - self.wl_list[i]*sum([self.vec[n,n] for n in range(1,self.D)]) #needs to be original as done after disp transform
         return self.Htot
         
-    def hamiltonian(self, accuracy=0, start=0, end=0):
+    def hamiltonian(self, accuracy=0, start=0, end=0, suppress=False):
         if self.omega==0 and self.zeta1==0:
-            print("hamiltonian_nodriving working...")
+            if suppress==False:
+                print("hamiltonian_nodriving working...")
+            else:
+                pass
             return self.hamiltonian_nodriving()
         elif accuracy ==0:
-            print("hamiltonian_withdriving working... (single), confusion with take away laser frequency, automatically 0")
+            if suppress==False:
+                print("hamiltonian_withdriving working... (single), confusion with take away laser frequency, automatically 0")
+            else:
+                pass
             self.H = self.hamiltonian_nodriving() + self.omega*(self.a + self.adag) + (sum([self.zeta2*self.vec[0,n] + self.zeta1*self.vec[n,0] for n in range(1,self.D)]))
             return self.H
         else:
@@ -178,3 +192,25 @@ class MultiLevel:
             for i in range(self.accuracy):
                 self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
             return self.pdark
+        
+class Dicke:
+    
+    def __init__(self, N, M, g, wc, wa):
+        self.N = N #cavity levels 
+        self.M = M #number of atoms
+        self.g = g #coupling
+        self.wc = wc #cavity frequency
+        self.wa = wa #atomic frequency
+        
+        self.j = M/2
+        self.n = 2*self.j+1
+        self.a  = qt.tensor(qt.operators.destroy(N), qt.operators.qeye(int(self.n)))
+        self.adag = self.a.dag()
+        
+        self.Jp = qt.tensor(qt.operators.qeye(N), qt.operators.jmat(self.j, '+'))
+        self.Jm = qt.tensor(qt.operators.qeye(N), qt.operators.jmat(self.j, '-'))
+        self.Jz = qt.tensor(qt.operators.qeye(N), qt.operators.jmat(self.j, 'z'))
+    
+    def hamiltonian(self):
+        self.H = self.wc*self.adag*self.a + self.wa*self.Jz + self.g/np.sqrt(self.M)*(self.a+self.adag)*(self.Jp+self.Jm)
+        return self.H
