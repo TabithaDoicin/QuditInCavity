@@ -11,8 +11,11 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 100             # number of cavity fock states
-D = 2             #number of atomic states
+plt.rc('text', usetex=True)
+plt.rc('text.latex', preamble=r'\usepackage{physics}')
+
+N = 50             # number of cavity fock states
+D = 10             #number of atomic states
 geff = 1
 ep=0.2*geff
 wa = 1            # cavity and atom frequency
@@ -22,7 +25,7 @@ wc = 1
 sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 4
+geff_list_max = 5
 geff_list_num = 200
 
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
@@ -42,13 +45,15 @@ for k in range(geff_list_num):
     systems_no_rwa_list[k].hamiltonian(suppress=True)
     systems_gndstate_no_rwa_list[k] = systems_no_rwa_list[k].H.groundstate()[1]
 
-n_gnd_rwa = expect(sys.n_op_tot, systems_gndstate_rwa_list)
-n_gnd_no_rwa = expect(sys.n_op_tot, systems_gndstate_no_rwa_list)
+n_gnd_rwa = expect(sys.n_op, systems_gndstate_rwa_list)
+n_gnd_no_rwa = expect(sys.n_op, systems_gndstate_no_rwa_list)
 
 additionscaling = np.empty([len(geff_list)])
 for k in range(len(geff_list)):
     additionscaling[k] = (geff_list[k])**2 
     
 fig, ax = plt.subplots()
+ax.set_ylabel(r'$\langle{a^\dagger a}\rangle$')
+ax.set_xlabel(r'$g_{eff}$')
 ax.plot(geff_list, n_gnd_rwa)
-ax.plot(geff_list, n_gnd_no_rwa-additionscaling)
+ax.plot(geff_list, n_gnd_no_rwa-0*additionscaling)
