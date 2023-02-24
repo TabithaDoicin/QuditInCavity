@@ -15,19 +15,18 @@ plt.rc('text', usetex=True)
 plt.rc('text.latex', preamble=r'\usepackage{physics}')
 
 N = 50             # number of cavity fock states
-D = 10             #number of atomic states
-geff = 1
-ep=0.2*geff
+D = 3             #number of atomic states
+geff_forops = 1
+ep=0.2*geff_forops
 wa = 1            # cavity and atom frequency
 wc = 1
 
 #system for extracting operators (they are the same for rwa and no rwa)
-sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
+sys = t.MultiLevel(N, D, geff_forops, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 #looking at geff variation
 geff_list_min = 0
 geff_list_max = 5
-geff_list_num = 200
-
+geff_list_num = 1000
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
 systems_rwa_list = np.empty([geff_list_num], dtype = object)
@@ -47,7 +46,15 @@ for k in range(geff_list_num):
 
 n_gnd_rwa = expect(sys.n_op, systems_gndstate_rwa_list)
 n_gnd_no_rwa = expect(sys.n_op, systems_gndstate_no_rwa_list)
+list_of_steps = np.empty([geff_list_num])
 
+for k in range(N):
+    if k==0:
+        list_of_steps[k] = np.sqrt(wc**2-ep**2/4)
+        pass
+    else:
+        list_of_steps[k] = np.sqrt(wc**2 * (2*k+1) + np.sqrt(wc**2 * (ep**2 + 4*k*wc + 4*k**2*wc**2)))#this is a specific solution of the quartic?
+    
 additionscaling = np.empty([len(geff_list)])
 for k in range(len(geff_list)):
     additionscaling[k] = (geff_list[k])**2 
@@ -57,3 +64,5 @@ ax.set_ylabel(r'$\langle{a^\dagger a}\rangle$')
 ax.set_xlabel(r'$g_{eff}$')
 ax.plot(geff_list, n_gnd_rwa)
 ax.plot(geff_list, n_gnd_no_rwa-0*additionscaling)
+ax.scatter(list_of_steps, np.linspace(0,0,len(list_of_steps)))
+plt.xlim(geff_list_min,geff_list_max)

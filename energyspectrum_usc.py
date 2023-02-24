@@ -11,8 +11,8 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 3             #number of atomic states
+N = 50             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+D = 5             #number of atomic states
 geff = 1
 ep=0.5*geff
 wa = 1            # cavity and atom frequency
@@ -23,7 +23,7 @@ sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 3
+geff_list_max = 5
 geff_list_num = 200
 
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
@@ -47,12 +47,12 @@ energy_rwa_list = np.empty([len(systems_energies_rwa_list[0])],dtype=object) #en
 energy_no_rwa_list = np.empty([len(systems_energies_no_rwa_list[0])],dtype=object) #energy levels specifically!!
 
 for n in range(len(energy_rwa_list)): #the length is the same as N*D because hamiltonian diagonalisation is the amount of energy levels
-    #energy_rwa_list[n] = [systems_energies_rwa_list[k][n] for k in range(len(geff_list))]
+    energy_rwa_list[n] = [systems_energies_rwa_list[k][n] for k in range(len(geff_list))]
     energy_no_rwa_list[n] =  [systems_energies_no_rwa_list[k][n] for k in range(len(geff_list))]
     
 fig, ax = plt.subplots()
 additionscaling = np.empty([len(geff_list)])
-#plt.ylim(-10, 5)
+plt.ylim(-5, 30)
 
 for k in range(len(geff_list)):
     additionscaling[k] = (geff_list[k])**2 
@@ -64,6 +64,6 @@ for n in range(len(energy_rwa_list)):#plotting
     ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted') #no rescaling?
     ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red')
     
-ax.set_ylabel(r'Energy Spectrums')
+ax.set_ylabel(r'E')
 ax.set_xlabel(r'$g_{eff}$')
 plt.title(r'Energy Spectrum of Mulilevel Q-Rabi model (red) and Mulilevel JC model (black)' + ', D=' + str(D))

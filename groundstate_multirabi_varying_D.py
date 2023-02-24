@@ -16,8 +16,8 @@ plt.rc('text.latex', preamble=r'\usepackage{physics}')
 
 N = 40             # number of cavity fock states
 #D = 2             #number of atomic states
-geff = 1
-ep=5*geff
+geff = 0.2
+ep=0.5
 wa = 1            # cavity and atom frequency
 wc = 1
 
