@@ -1,5 +1,7 @@
 <!-- @format -->
 
-# qudit cavity spectrums
+# Qudit Cavity Spectrums
 
-_simulation and data visulization of qudit cavity spectrums_
+_simulation and data visulization of qudit cavity spectrums._
+
+
