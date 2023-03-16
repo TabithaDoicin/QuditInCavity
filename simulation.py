@@ -54,7 +54,7 @@ class MultiLevel:
         self.adagori = self.aori.dag()
         #system operators - atom
         self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
-        self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators
+        self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators vec(n,m) = |n><m|
         for n in range(self.D):
             for m in range(self.D):
                 self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
@@ -193,6 +193,37 @@ class MultiLevel:
                 self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
             return self.pdark
         
+class DegenBlochSiegert:
+    
+    def __init__(self, N, D, geff, wc, wa):
+        self.N=N
+        self.D=D
+        self.geff=geff
+        self.wc=wc
+        self.wa=wa
+        self.g=self.geff/np.sqrt(self.D-1)
+        self.a = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
+        self.adag = self.a.dag()
+        self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
+        self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators
+        for n in range(self.D):
+            for m in range(self.D):
+                self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
+                
+        self.n_op_tot = self.adag*self.a + sum([self.vec[n,n] for n in range(1,self.D)])
+        self.n_op = self.adag*self.a
+        
+        self.Op = sum([self.vec[n,0] for n in range(1,self.D)])
+        self.Om = self.Op.dag()
+        
+        self.Oz = sum([self.vec[n,n] for n in range(1,self.D)]) - self.vec[0,0]
+        self.I=qt.tensor(qt.operators.qeye(self.N),qt.operators.qeye(self.D))
+        
+    def hamiltonian(self):
+        self.H=self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I) + self.g*(self.a*self.Op + self.adag*self.Om) + self.g**2/(self.wa+self.wc)*(self.adag*self.a*(self.Op*self.Om-self.Om*self.Op)-(self.D-1)/2*(self.I-self.Oz))
+        return self.H
+    
+    
 class Dicke:
     
     def __init__(self, N, M, g, wc, wa):
