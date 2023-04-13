@@ -223,6 +223,46 @@ class DegenBlochSiegert:
         self.H=self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I) + self.g*(self.a*self.Op + self.adag*self.Om) + self.g**2/(self.wa+self.wc)*(self.adag*self.a*(self.Op*self.Om-self.Om*self.Op)-(self.D-1)/2*(self.I-self.Oz))
         return self.H
     
+class GeneralBlochSiegert:
+    
+    def __init__(self, N, D, geff, ep, wc, wa):
+        self.N=N
+        self.D=D
+        self.geff=geff
+        self.ep=ep
+        self.wc=wc
+        self.wa=wa
+        self.beta=wc+wa
+        self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
+        self.a = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
+        self.adag = self.a.dag()
+        self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
+        self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators
+        self.Lambda=[self.glist[k-1]/(self.beta+self.ep*((k-1)/(self.D-1)-0.5)) for k in range(1,self.D)]
+        for n in range(self.D):
+            for m in range(self.D):
+                self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
+            
+        self.n_op_tot = self.adag*self.a + sum([self.vec[n,n] for n in range(1,self.D)])
+        self.n_op = self.adag*self.a
+        
+        self.Op = sum([self.vec[n,0] for n in range(1,self.D)])
+        self.Om = self.Op.dag()
+        
+        self.Oz = sum([self.vec[n,n] for n in range(1,self.D)]) - self.vec[0,0]
+        self.I=qt.tensor(qt.operators.qeye(self.N),qt.operators.qeye(self.D))    
+
+    def hamiltonian(self):
+        self.H_0 = self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I)
+        self.H_ep = self.ep/(self.D-2) * sum([(k-1)*self.vec[k,k] for k in range(1,self.D)]) -self.ep/4 * (self.I+ self.Oz)
+        self.H_r = self.a*sum([self.glist[k-1]*self.vec[k,0] for k in range(1,self.D)]) + self.adag*sum([self.glist[k-1]*self.vec[0,k] for k in range(1,self.D)])
+        self.H_n = self.adag*self.a*sum([sum([(qt.operators.commutator(self.vec[k,0],self.vec[0,j])*\
+                        (self.glist[j-1]*self.Lambda[k-1]+self.glist[k-1]*self.Lambda[j-1]\
+                        -(self.beta+self.ep*(j+k-2)/(2*(self.D-2)) -self.ep/2)*self.Lambda[j-1]*self.Lambda[k-1])) for j in range(1,self.D)]) for k in range(1,self.D)])
+        self.H_i = -0.5*(self.I-self.Oz)*sum([2*self.glist[j-1]*self.Lambda[j-1]\
+                        -(self.beta+self.ep*(j-1)/(self.D-2)-self.ep/2)*self.Lambda[j-1]**2 for j in range(1,self.D)])
+        self.H = self.H_0 + self.H_ep + self.H_r + self.H_n + self.H_i
+        return self.H
     
 class Dicke:
     
