@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 12 00:27:53 2022
+Created on Mon Apr 24 21:18:18 2023
 
-@author: Tib
+@author: tibbles
 """
 
 import numpy as np
@@ -17,7 +18,7 @@ import simulation as t
 N = 50             # number of cavity fock states
 D = 5             #number of atomic states
 geff_forops = 1
-ep=0.2*geff_forops
+ep=0.5*geff_forops
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -51,27 +52,19 @@ for k in range(geff_list_num):
     systems_MBS_list[k].hamiltonian()
     systems_gndstate_MBS_list[k] = systems_MBS_list[k].H.groundstate()[1]
 
-n_gnd_rwa = expect(sys.n_op, systems_gndstate_rwa_list)
-n_gnd_no_rwa = expect(sys.n_op, systems_gndstate_no_rwa_list)
-n_gnd_MBS = expect(sys.n_op, systems_gndstate_MBS_list)
-list_of_steps = np.empty([geff_list_num])
+fidelity_rwa_list = np.empty([geff_list_num], dtype = object)
+fidelity_MBS_list = np.empty([geff_list_num], dtype = object)
+interfidelity_list = np.empty([geff_list_num], dtype = object)
 
-for k in range(N):
-    if k==0:
-        list_of_steps[k] = np.sqrt(wc**2-ep**2/4)
-        pass
-    else:
-        list_of_steps[k] = np.sqrt(wc**2 * (2*k+1) + np.sqrt(wc**2 * (ep**2 + 4*k*wc + 4*k**2*wc**2)))#this is a specific solution of the quartic?
+for k in range(geff_list_num):
+    fidelity_rwa_list[k] = systems_gndstate_rwa_list[k].dag() * systems_gndstate_no_rwa_list[k]
+    fidelity_MBS_list[k] = systems_gndstate_MBS_list[k].dag() * systems_gndstate_no_rwa_list[k]
+    interfidelity_list[k] = systems_gndstate_MBS_list[k].dag() * systems_gndstate_rwa_list[k]
     
-additionscaling = np.empty([len(geff_list)])
-for k in range(len(geff_list)):
-    additionscaling[k] = (geff_list[k])**2 
-    
+    fidelity_rwa_list[k] = np.abs(fidelity_rwa_list[k][0][0][0])**2
+    fidelity_MBS_list[k] = np.abs(fidelity_MBS_list[k][0][0][0])**2
+    interfidelity_list[k] = np.abs(interfidelity_list[k][0][0][0])**2
 fig, ax = plt.subplots()
-#ax.set_ylabel(r'$\langle{a^\dagger a}\rangle$')
-#ax.set_xlabel(r'$g_{eff}$')
-ax.plot(geff_list, n_gnd_rwa)
-ax.plot(geff_list, n_gnd_no_rwa-0*additionscaling)
-ax.plot(geff_list, n_gnd_MBS)
-ax.scatter(list_of_steps, np.linspace(0,0,len(list_of_steps)))
-plt.xlim(geff_list_min,geff_list_max)
+ax.plot(geff_list, fidelity_rwa_list)
+ax.plot(geff_list, fidelity_MBS_list)
+ax.plot(geff_list, interfidelity_list)
