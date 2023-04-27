@@ -25,8 +25,8 @@ wc = 1
 sys = t.MultiLevel(N, D, geff_forops, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 3
-geff_list_num = 300
+geff_list_max = 1.2
+geff_list_num = 30
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
 systems_rwa_list = np.empty([geff_list_num], dtype = object)
@@ -49,14 +49,14 @@ for k in range(geff_list_num):
     
     systems_MBS_list[k] = t.GeneralBlochSiegert(N, D, geff_list[k], ep, wc, wa)
     systems_MBS_list[k].hamiltonian()
-    systems_gndstate_MBS_list[k] = systems_MBS_list[k].H.groundstate()[1]
+    systems_gndstate_MBS_list[k] = systems_MBS_list[k].Udag * systems_MBS_list[k].H.groundstate()[1] #basis changed
 
 n_gnd_rwa = expect(sys.n_op, systems_gndstate_rwa_list)
 n_gnd_no_rwa = expect(sys.n_op, systems_gndstate_no_rwa_list)
 n_gnd_MBS = expect(sys.n_op, systems_gndstate_MBS_list)
 list_of_steps = np.empty([geff_list_num])
 
-for k in range(N):
+for k in range(min([N,geff_list_num])):
     if k==0:
         list_of_steps[k] = np.sqrt(wc**2-ep**2/4)
         pass
