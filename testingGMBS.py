@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 import simulation as t
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=4)
-sys=t.GeneralBlochSiegert(2,3,1,1,1,1)
+sys=t.GeneralBlochSiegert(5,3,1,0.5,1,1)
 sys.hamiltonian()
-print(sys.phi)
-print(sys.U1@ sys.U1.T)
+#print(sys.phi)
+#print(sys.U1@ sys.U1.T)
 print(sys.U2)
-print(sys.U)
-print(sys.U*sys.Udag)
+#print(sys.U)
+#print(sys.U*sys.Udag)
 
