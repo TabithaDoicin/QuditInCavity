@@ -267,6 +267,8 @@ class GeneralBlochSiegert:
         self.U2 = np.real(sp.linalg.expm(sum([sum([self.phi[j-1,k-1] * (self.adag**2 * qt.operators.commutator(self.vec[j,0],self.vec[0,k])\
                                                                 -self.a**2 * qt.operators.commutator(self.vec[k,0],self.vec[0,j]))for j in range(1,self.D)]) for k in range(1,self.D)])))
         self.U = qt.Qobj(np.real(self.U2 @ self.U1), dims=[[self.N, self.D], [self.N, self.D]])
+        self.U1dag = qt.Qobj(np.real(self.U1), dims=[[self.N, self.D], [self.N, self.D]]).dag()
+        self.U2dag = qt.Qobj(np.real(self.U2), dims=[[self.N, self.D], [self.N, self.D]]).dag()
         self.Udag = self.U.dag()
     
     def hamiltonian(self):

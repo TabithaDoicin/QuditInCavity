@@ -11,7 +11,7 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 50             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+N = 75             # number of cavity fock states #needs to be really high to properly classify eigenenergies
 D = 5             #number of atomic states
 geff = 1
 ep=0.5*geff

@@ -18,7 +18,7 @@ import simulation as t
 N = 5             # number of cavity fock states
 D = 3             #number of atomic states
 geff_forops = 1
-ep=0.5*geff_forops
+ep=1*geff_forops
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -50,7 +50,7 @@ for k in range(geff_list_num):
     
     systems_MBS_list[k] = t.GeneralBlochSiegert(N, D, geff_list[k], ep, wc, wa)
     systems_MBS_list[k].hamiltonian()
-    systems_gndstate_MBS_list[k] = systems_MBS_list[k].Udag* systems_MBS_list[k].H.groundstate()[1]
+    systems_gndstate_MBS_list[k] = systems_MBS_list[k].U1dag* systems_MBS_list[k].H.groundstate()[1]
 
 fidelity_rwa_list = np.empty([geff_list_num], dtype = object)
 fidelity_MBS_list = np.empty([geff_list_num], dtype = object)
