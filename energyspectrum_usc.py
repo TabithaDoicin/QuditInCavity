@@ -11,11 +11,10 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 75             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+N = 10             # number of cavity fock states #needs to be really high to properly classify eigenenergies
 D = 5             #number of atomic states
 geff = 1
 ep=0.5*geff
-ep=0.2*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -24,8 +23,8 @@ sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 3
-geff_list_num = 300
+geff_list_max = 2
+geff_list_num = 150
 
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
@@ -80,11 +79,15 @@ for k in range(len(geff_list)):
 #ax.plot(geff_list,energy_no_rwa_list[0]+0*additionscaling, color = 'red')
 
 for n in range(len(energy_rwa_list)):#plotting
-    ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted') #no rescaling?
-    ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red')
+    MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
+    MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM')
     #ax.plot(geff_list,energy_MBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted')
-    ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted')
+    GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted', label='GMBS')
     
-ax.set_ylabel(r'E')
+ax.set_ylabel(r'Energy')
 ax.set_xlabel(r'$g_{eff}$')
-plt.title(r'Energy Spectrum of Mulilevel Q-Rabi model (red) and Mulilevel JC model (black)' + ', D=' + str(D))
+plt.title(r'Comparison of Energy Spectrums for ' + 'D = ' + str(D-1))
+ax.legend(handles=[MJC_line, MQRM_line, GMBS_line])
+
+
+

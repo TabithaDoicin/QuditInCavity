@@ -263,13 +263,23 @@ class GeneralBlochSiegert:
         self.Oz = sum([self.vec[n,n] for n in range(1,self.D)]) - self.vec[0,0]
         self.I=qt.tensor(qt.operators.qeye(self.N),qt.operators.qeye(self.D))    
         
-        self.U1 = np.real(sp.linalg.expm(sum([self.Lambda[k-1]*(self.adag*self.vec[k,0] - self.a*self.vec[0,k]) for k in range(1,self.D)])))
-        self.U2 = np.real(sp.linalg.expm(sum([sum([self.phi[j-1,k-1] * (self.adag**2 * qt.operators.commutator(self.vec[j,0],self.vec[0,k])\
-                                                                -self.a**2 * qt.operators.commutator(self.vec[k,0],self.vec[0,j]))for j in range(1,self.D)]) for k in range(1,self.D)])))
-        self.U = qt.Qobj(np.real(self.U2 @ self.U1), dims=[[self.N, self.D], [self.N, self.D]])
-        self.U1dag = qt.Qobj(np.real(self.U1), dims=[[self.N, self.D], [self.N, self.D]]).dag()
-        self.U2dag = qt.Qobj(np.real(self.U2), dims=[[self.N, self.D], [self.N, self.D]]).dag()
+        self.U1 = qt.Qobj(np.real(sp.linalg.expm(sum([self.Lambda[k-1]*(self.adag*self.vec[k,0] - self.a*self.vec[0,k]) for k in range(1,self.D)]))), dims=[[self.N, self.D], [self.N, self.D]])
+        self.U2 = qt.Qobj(np.real(sp.linalg.expm(sum([sum([self.phi[j-1,k-1] * (self.adag**2 * qt.operators.commutator(self.vec[j,0],self.vec[0,k])\
+                                                                -self.a**2 * qt.operators.commutator(self.vec[k,0],self.vec[0,j]))for j in range(1,self.D)]) for k in range(1,self.D)]))), dims=[[self.N, self.D], [self.N, self.D]])
+        
+        self.U1_toOrder = qt.Qobj(np.real(expmToN(sum([self.Lambda[k-1]*(self.adag*self.vec[k,0] - self.a*self.vec[0,k]) for k in range(1,self.D)]),2)), dims=[[self.N, self.D], [self.N, self.D]])
+        self.U2_toOrder = qt.Qobj(np.real(expmToN(sum([sum([self.phi[j-1,k-1] * (self.adag**2 * qt.operators.commutator(self.vec[j,0],self.vec[0,k])\
+                                                                -self.a**2 * qt.operators.commutator(self.vec[k,0],self.vec[0,j]))for j in range(1,self.D)]) for k in range(1,self.D)]),1)), dims=[[self.N, self.D], [self.N, self.D]])
+        
+        self.U = self.U2 * self.U1
         self.Udag = self.U.dag()
+        self.U1dag = self.U1.dag()
+        self.U2dag = self.U2.dag()
+        
+        self.U_toOrder = self.U2_toOrder * self.U1_toOrder
+        self.U_toOrder_dag = self.U1_toOrder.dag()
+        self.U1_toOrder_dag = self.U1_toOrder.dag()
+        self.U2_toOrder_dag = self.U2_toOrder.dag()
     
     def hamiltonian(self):
         self.H_0 = self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I)
