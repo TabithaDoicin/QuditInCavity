@@ -13,12 +13,7 @@ import matplotlib.pyplot as plt
 import simulation as t
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=2)
-sys=t.GeneralBlochSiegert(4,3,1,0.5,1,1)
-sys.hamiltonian()
-#print(sys.phi)
-#print(sys.U1@ sys.U1.T)
-#print(sys.U2)
-#print(sys.U2_toOrder)
-print(sys.U)
-print(sys.U_toOrder)
+sys=t.GeneralBlochSiegert(5,3,1,0.5,1,1)
+H=sys.hamiltonian()
+print(H.eigenstates())
 
