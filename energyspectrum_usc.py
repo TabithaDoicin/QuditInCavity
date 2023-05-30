@@ -7,6 +7,7 @@ Created on Tue Dec 13 14:28:32 2022
 
 import numpy as np
 from qutip import *
+import scipy as sp
 qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
@@ -88,19 +89,25 @@ for k in range(len(geff_list)):
     
 #ax.plot(geff_list,energy_rwa_list[0], color = 'black', linestyle = 'dotted')
 #ax.plot(geff_list,energy_no_rwa_list[0]+0*additionscaling, color = 'red')
-E0 = [-g**2/2 * (1/(wa+wc-ep/2) + 1/(wa+wc+ep/2)) for g in geff_list]
+
+
+k = (D-2)*((wa+wc)/ep - 1/2)
+E0 = [(-g**2/(D-1)) * (D-2)/ep * (sp.special.digamma(k+D-1)-sp.special.digamma(k)) for g in geff_list]
+
+
 for n in range(len(energy_rwa_list)):#plotting
     MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
     MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM')
     #ax.plot(geff_list,energy_MBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted')
     GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted', label='GMBS')
+    GMBS_gnd_analytical_line, = ax.plot(geff_list,E0+1*additionscaling, color = 'green', label = 'GND_GMBS')
     #GMBS_corrected_line, = ax.plot(geff_list,energy_GMBS_corrected_list[n]+1*additionscaling, color = 'fuchsia',linestyle = 'dotted', label='GMBS_corr')
 
-ax.plot(geff_list,E0+1*additionscaling)
+
 ax.set_ylabel(r'Energy')
 ax.set_xlabel(r'$g_{eff}$')
 plt.title(r'Comparison of Energy Spectrums for ' + 'D = ' + str(D-1))
-ax.legend(handles=[MJC_line, MQRM_line, GMBS_line])#, GMBS_corrected_line])
+ax.legend(handles=[MJC_line, MQRM_line, GMBS_line,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
 
 
 
