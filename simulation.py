@@ -27,6 +27,14 @@ def expmToN(mat,order):
     result = sum([matpower(mat,k) for k in range(0,order+1)])
     return result
 
+def elevelspacings(eigens, eigvecs, parity_op, parity_val=1):
+    parity_expect_list = np.asarray(np.round(qt.expect(parity_op, eigvecs),0), dtype = 'int')
+    array_indices = np.where(parity_expect_list==parity_val)[0]
+    energies_of_parity = [eigens[k] for k in array_indices]
+    energy_diff = [np.subtract(energies_of_parity[n+1], energies_of_parity[n]) for n in range(len(energies_of_parity)-1)]
+    energy_diff_average = np.average(energy_diff)
+    normalised_energy_diff = np.divide(energy_diff, energy_diff_average)
+    return normalised_energy_diff
 
 class MultiLevel:
     
@@ -71,6 +79,11 @@ class MultiLevel:
         
         self.n_op_tot = self.adag*self.a + sum([self.vec[n,0]*self.vec[0,n] for n in range(1,self.D)])
         self.n_op = self.adag*self.a 
+        
+        self.Pexp = 1j * np.pi * self.n_op_tot
+        self.P = self.Pexp.expm()
+        
+        
     def hamiltonian_nodriving(self):
         if self.rwa==True:
             #constructing hamiltonian in RWA
@@ -203,7 +216,7 @@ class MultiLevel:
                 self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
             return self.pdark
         
-class DegenBlochSiegert:
+class DegenBlochSiegert: #DEPRECATED // INCLUDED IN GENERALBLOCKSIEGERT
     
     def __init__(self, N, D, geff, wc, wa):
         self.N=N
@@ -280,6 +293,9 @@ class GeneralBlochSiegert:
         self.U_toOrder_dag = self.U1_toOrder.dag()
         self.U1_toOrder_dag = self.U1_toOrder.dag()
         self.U2_toOrder_dag = self.U2_toOrder.dag()
+        
+        self.Pexp = 1j * np.pi * self.n_op_tot
+        self.P = self.Pexp.expm()
     
     def hamiltonian(self):
         self.H_0 = self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I)
@@ -304,13 +320,22 @@ class Dicke:
         
         self.j = M/2
         self.n = 2*self.j+1
-        self.a  = qt.tensor(qt.operators.destroy(N), qt.operators.qeye(int(self.n)))
+        self.a  = qt.tensor(qt.operators.destroy(N),qt.operators.qeye(int(self.n)))
         self.adag = self.a.dag()
         
-        self.Jp = qt.tensor(qt.operators.qeye(N), qt.operators.jmat(self.j, '+'))
-        self.Jm = qt.tensor(qt.operators.qeye(N), qt.operators.jmat(self.j, '-'))
-        self.Jz = qt.tensor(qt.operators.qeye(N), qt.operators.jmat(self.j, 'z'))
-    
+        self.Jp = qt.tensor(qt.operators.qeye(N),qt.operators.jmat(self.j, '+'))
+        self.Jm = qt.tensor(qt.operators.qeye(N),qt.operators.jmat(self.j, '-'))
+        self.Jz = qt.tensor(qt.operators.qeye(N),qt.operators.jmat(self.j, 'z'))
+        
+        self.N = self.adag*self.a + self.Jz + self.j
+        self.Pexp = 1j * np.pi * self.N
+        self.P = self.Pexp.expm()
+        
     def hamiltonian(self):
         self.H = self.wc*self.adag*self.a + self.wa*self.Jz + self.g/np.sqrt(self.M)*(self.a+self.adag)*(self.Jp+self.Jm)
         return self.H
+    
+    
+    
+    
+    

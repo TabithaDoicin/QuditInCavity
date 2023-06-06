@@ -15,7 +15,7 @@ import scipy as sp
 #plt.rc('text.latex', preamble=r'\usepackage{physics}')
 
 N = 30             # number of cavity fock states
-D = 10             #number of atomic states
+D = 9             #number of atomic states
 geff_forops = 1
 ep=1*geff_forops
 wa = 1            # cavity and atom frequency
@@ -26,7 +26,7 @@ sys = t.MultiLevel(N, D, geff_forops, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 #looking at geff variation
 geff_list_min = 0
 geff_list_max = 1
-geff_list_num = 30
+geff_list_num = 100
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
 systems_rwa_list = np.empty([geff_list_num], dtype = object)
