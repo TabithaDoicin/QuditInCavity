@@ -12,14 +12,16 @@ import matplotlib.pyplot as plt
 import simulation as t
 import math
 
-N = 40             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-M = 20             # number of atoms -1
+N = 600             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+M = 2             # number of atoms -1
 geff = 0.8
 wa = 1            # cavity and atom frequency
 wc = 1
 
-sys = t.Dicke(N, M, geff, wc, wa) #dicke model
-H = sys.hamiltonian()
+ep = 0
+
+sys = t.MultiLevel(N, M, geff, ep, wc, wa, rwa=False)
+H = sys.hamiltonian_nodriving()
 eigspace = H.eigenstates()
 sys_energies = eigspace[0]
 sys_eigvecs = eigspace[1]
@@ -35,6 +37,6 @@ wignerdysonian = [np.pi * x/2 * math.e**(-(np.pi/4)*x**2) for x in spacings]
 #plt.hist(sys_no_rwa_eng_diff, density=True, bins=100)
 ax.plot(spacings,poissonian)
 ax.plot(spacings,wignerdysonian)
-plt.ylim([0,4])
+plt.ylim([0,10])
 plt.xlim([0,4])
 plt.hist(normalised_sys_eng_diff, density=True, bins='auto', log=False)

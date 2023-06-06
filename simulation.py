@@ -27,8 +27,8 @@ def expmToN(mat,order):
     result = sum([matpower(mat,k) for k in range(0,order+1)])
     return result
 
-def elevelspacings(eigens, eigvecs, parity_op, parity_val=1):
-    parity_expect_list = np.asarray(np.round(qt.expect(parity_op, eigvecs),0), dtype = 'int')
+def elevelspacings(eigens, eigvecs, parity_op, parity_val=1, cutoff=0.8):
+    parity_expect_list = np.asarray(np.round(qt.expect(parity_op, eigvecs),0), dtype = 'int')[0:int(round(cutoff*eigens.size))]
     array_indices = np.where(parity_expect_list==parity_val)[0]
     energies_of_parity = [eigens[k] for k in array_indices]
     energy_diff = [np.subtract(energies_of_parity[n+1], energies_of_parity[n]) for n in range(len(energies_of_parity)-1)]
@@ -38,7 +38,7 @@ def elevelspacings(eigens, eigvecs, parity_op, parity_val=1):
 
 class MultiLevel:
     
-    def __init__(self, N, D, geff, ep, wc, wa, kappa, gamma, gamma_d, theta, omega=0, zeta=0, displacement = 0, rwa=True):
+    def __init__(self, N, D, geff, ep, wc, wa, kappa=0, gamma=0, gamma_d=0, theta=0, omega=0, zeta=0, displacement = 0, rwa=True):
         #system variables
         self.N = N #max cavity population
         self.D = D #atomic levels
