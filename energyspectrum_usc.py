@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 N = 15             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 3             #number of atomic states
+D = 5             #number of atomic states
 geff = 1
-ep=0.5*geff
+ep=0.01*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -97,17 +97,17 @@ E0 = [(-g**2/(D-1)) * (D-2)/ep * (sp.special.digamma(k+D-1)-sp.special.digamma(k
 
 for n in range(len(energy_rwa_list)):#plotting
     MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
-    MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM')
+    #MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM')
     #ax.plot(geff_list,energy_MBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted')
-    GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted', label='GMBS')
-    GMBS_gnd_analytical_line, = ax.plot(geff_list,E0+1*additionscaling, color = 'green', label = 'GND_GMBS')
+    #GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted', label='GMBS')
+    #GMBS_gnd_analytical_line, = ax.plot(geff_list,E0+1*additionscaling, color = 'green', label = 'GND_GMBS')
     #GMBS_corrected_line, = ax.plot(geff_list,energy_GMBS_corrected_list[n]+1*additionscaling, color = 'fuchsia',linestyle = 'dotted', label='GMBS_corr')
 
 
 ax.set_ylabel(r'Energy')
 ax.set_xlabel(r'$g_{eff}$')
 plt.title(r'Comparison of Energy Spectrums for ' + 'D = ' + str(D-1))
-ax.legend(handles=[MJC_line, MQRM_line, GMBS_line,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
+#ax.legend(handles=[MJC_line, MQRM_line, GMBS_line,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
 
 
 
