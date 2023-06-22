@@ -216,7 +216,7 @@ class MultiLevel:
                 self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
             return self.pdark
         
-class DegenBlochSiegert: #DEPRECATED // INCLUDED IN GENERALBLOCKSIEGERT
+class DegenBlochSiegert: 
     
     def __init__(self, N, D, geff, wc, wa):
         self.N=N
@@ -298,16 +298,21 @@ class GeneralBlochSiegert:
         self.P = self.Pexp.expm()
     
     def hamiltonian(self):
-        self.H_0 = self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I)
-        self.H_ep = self.ep/(self.D-2) * sum([(k-1)*self.vec[k,k] for k in range(1,self.D)]) -self.ep/4 * (self.I+ self.Oz)
-        self.H_r = self.a*sum([self.glist[k-1]*self.vec[k,0] for k in range(1,self.D)]) + self.adag*sum([self.glist[k-1]*self.vec[0,k] for k in range(1,self.D)])
-        self.H_n = self.adag*self.a*sum([sum([(qt.operators.commutator(self.vec[k,0],self.vec[0,j])*\
-                        (self.glist[j-1]*self.Lambda[k-1]+self.glist[k-1]*self.Lambda[j-1]\
-                        -(self.beta+self.ep*(j+k-2)/(2*(self.D-2)) -self.ep/2)*self.Lambda[j-1]*self.Lambda[k-1])) for j in range(1,self.D)]) for k in range(1,self.D)])
-        self.H_i = -0.5*(self.I-self.Oz)*sum([2*self.glist[j-1]*self.Lambda[j-1]\
-                        -(self.beta+self.ep*(j-1)/(self.D-2)-self.ep/2)*self.Lambda[j-1]**2 for j in range(1,self.D)])
-        self.H = self.H_0 + self.H_ep + self.H_r + self.H_n + self.H_i
-        return self.H
+        if self.D>2:
+            self.H_0 = self.wc*self.adag*self.a + 0.5*self.wa*(self.Oz+self.I)
+            self.H_ep = self.ep/(self.D-2) * sum([(k-1)*self.vec[k,k] for k in range(1,self.D)]) -self.ep/4 * (self.I+ self.Oz)
+            self.H_r = self.a*sum([self.glist[k-1]*self.vec[k,0] for k in range(1,self.D)]) + self.adag*sum([self.glist[k-1]*self.vec[0,k] for k in range(1,self.D)])
+            self.H_n = self.adag*self.a*sum([sum([(qt.operators.commutator(self.vec[k,0],self.vec[0,j])*\
+                            (self.glist[j-1]*self.Lambda[k-1]+self.glist[k-1]*self.Lambda[j-1]\
+                            -(self.beta+self.ep*(j+k-2)/(2*(self.D-2)) -self.ep/2)*self.Lambda[j-1]*self.Lambda[k-1])) for j in range(1,self.D)]) for k in range(1,self.D)])
+            self.H_i = -0.5*(self.I-self.Oz)*sum([2*self.glist[j-1]*self.Lambda[j-1]\
+                            -(self.beta+self.ep*(j-1)/(self.D-2)-self.ep/2)*self.Lambda[j-1]**2 for j in range(1,self.D)])
+            self.H = self.H_0 + self.H_ep + self.H_r + self.H_n + self.H_i
+            return self.H
+        elif self.D==2:
+            tempsys = DegenBlochSiegert(self.N, self.D, self.geff, self.wc, self.wa) #since ep=0 may aswell o.o haha sneaky
+            self.H = tempsys.hamiltonian()
+            return self.H
     
 class Dicke:
     

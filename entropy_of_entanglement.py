@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 N = 10             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 10             #number of atomic states
+D = 3             #number of atomic states
 geff_forops = 1
 ep=0.2*geff_forops
 wa = 1            # cavity and atom frequency
@@ -72,7 +72,6 @@ for k in range(geff_list_num):
     rho_ato_MBS = ptrace(systems_gndstate_MBS_list[k], 1)
     entropy_cav_MBS[k] = entropy_vn(rho_cav_MBS)
     entropy_ato_MBS[k] = entropy_vn(rho_ato_MBS)
-    
 
 fig, ax = plt.subplots()
 ax.set_ylabel(r'$S$')
