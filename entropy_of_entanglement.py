@@ -14,15 +14,15 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 N = 10             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 3             #number of atomic states
+D = 2             #number of atomic states
 geff_forops = 1
 ep=0.2*geff_forops
-wa = 1            # cavity and atom frequency
+wa = 2**10          # cavity and atom frequency
 wc = 1
 
 #geff variation
 geff_list_min = 0
-geff_list_max = 1
+geff_list_max = 120
 geff_list_num = 100
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 

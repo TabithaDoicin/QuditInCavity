@@ -208,7 +208,7 @@ class MultiLevel:
     def darkstate_proportion(self, driving=False):
         self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)])
         if driving == False:
-            self.pdark = 1-(self.ss_dm*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr()
+            self.pdark = 1-(self.ss_dm*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag()/self.geff**2))).tr()
             return np.real(self.pdark)
         elif driving == True:
             self.pdark = np.empty([self.accuracy],dtype=object)
@@ -316,12 +316,20 @@ class GeneralBlochSiegert:
     
 class Dicke:
     
-    def __init__(self, N, M, g, wc, wa):
+    def __init__(self, N, M, geff, wc, wa, kappa = 0, gamma=0, gamma_d=0, theta=0, omega = 0, tc = True):
         self.N = N #cavity levels 
         self.M = M #number of atoms
-        self.g = g #coupling
+        self.geff = geff #coupling
         self.wc = wc #cavity frequency
         self.wa = wa #atomic frequency
+        self.kappa = kappa
+        self.gamma = gamma #atom decay
+        self.gamma_d = gamma_d #atom dephasing
+        self.theta = theta #atom inconherent pumping
+        self.tc = tc
+        self.omega = omega
+        
+        self.g = self.geff/np.sqrt(self.M)
         
         self.j = M/2
         self.n = 2*self.j+1
@@ -337,9 +345,39 @@ class Dicke:
         self.P = self.Pexp.expm()
         
     def hamiltonian(self):
-        self.H = self.wc*self.adag*self.a + self.wa*self.Jz + self.g/np.sqrt(self.M)*(self.a+self.adag)*(self.Jp+self.Jm)
+        self.H = self.wc*self.adag*self.a + self.wa*self.Jz/2 + self.geff/np.sqrt(self.M)*(self.Jp * self.a + self.Jm * self.adag)
+        if self.tc == False:
+            self.H = self.H + self.geff/np.sqrt(self.M)*(self.Jp*self.adag + self.Jm*self.a)
+        else:
+            pass
         return self.H
     
+    def hamiltonian_withdriving(self, start, end, accuracy):
+        self.V = self.omega*(self.a + self.adag)
+        self.wl_list = np.linspace(start + self.wc, end +self.wc, accuracy)
+        self.Htot = np.empty([accuracy],dtype=object)
+        for i in range(accuracy):
+            self.Htot[i] = self.H + self.V - self.wl_list[i]*self.adag*self.a \
+                - self.wl_list[i]*self.Jz/2 
+        return self.Htot
+    
+    def collapse(self):
+        #collapse operators
+        self.coop_cavity_decay = [np.sqrt(self.kappa)*self.a]
+        self.coop_radiative_decay = [np.sqrt(self.gamma)*self.Jm]
+        self.coop_dephasing = [np.sqrt(self.gamma_d)*self.Jz]
+        self.coop_pumping = [np.sqrt(self.theta)*self.Jp]
+        
+        self.c_ops = self.coop_cavity_decay + self.coop_radiative_decay + self.coop_dephasing + self.coop_pumping
+        
+        return self.c_ops
+    
+    def g2listcalc(self, operator):
+        self.g2list = np.empty([len(self.Htot)],dtype=np.float64)
+        for i in range(len(self.wl_list)):
+            self.g2list[i] = qt.coherence_function_g2(self.Htot[i], None, [0], self.c_ops, operator)[0][0]
+            print(i/len(self.wl_list))
+        return self.g2list
     
     
     

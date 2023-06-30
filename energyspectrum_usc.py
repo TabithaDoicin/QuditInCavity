@@ -12,10 +12,10 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 20             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+N = 40             # number of cavity fock states #needs to be really high to properly classify eigenenergies
 D = 3          #number of atomic states
 geff = 1
-ep=0*geff
+ep=0.25*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -24,7 +24,7 @@ sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 2
+geff_list_max = 3
 geff_list_num = 100
 
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
