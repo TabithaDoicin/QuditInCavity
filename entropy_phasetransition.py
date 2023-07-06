@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jun 12 00:44:22 2023
+Created on Sat Jul  1 21:44:34 2023
 
-@author: Tabitha
+@author: tibbles
 """
 
 import numpy as np
@@ -13,16 +13,18 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 10             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 4             #number of atomic states
+N = 30             # number of cavity fock states #needs to be really high to get good look at phase transition
+D = 2             #number of atomic states
 geff_forops = 1
 ep=0.2*geff_forops
-wa = 1          # cavity and atom frequency
+wa = 2**8          # cavity and atom frequency
 wc = 1
 
+gc = np.sqrt(wa*wc)/2 #prove this is the same for the multilevel model? as it seems to be numerically...
+
 #geff variation
-geff_list_min = 0
-geff_list_max = 2
+geff_list_min = 0.9*gc
+geff_list_max = 1.1*gc
 geff_list_num = 100
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
@@ -85,4 +87,3 @@ MBSato, = ax.plot(geff_list, entropy_ato_MBS, color='blue', label='MBS_full', li
 
 plt.xlim(geff_list_min,geff_list_max)
 ax.legend(handles=[MJCcav, MJCato, MQRMcav, MQRMato, MBScav, MBSato])
-    
