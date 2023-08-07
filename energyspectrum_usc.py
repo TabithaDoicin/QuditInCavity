@@ -25,7 +25,7 @@ sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 #looking at geff variation
 geff_list_min = 0
 geff_list_max = 3
-geff_list_num = 100
+geff_list_num = 200
 
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
@@ -85,19 +85,19 @@ if D!=2 and ep!=0:
     E0 = [(-g**2/(D-1)) * (D-2)/ep * (sp.special.digamma(k+D-1)-sp.special.digamma(k)) for g in geff_list]
 else:
     k=0
-    E0 = [0 for g in geff_list]
+    E0 = [-g**2/(wa+wc) for g in geff_list]
 
 for n in range(len(energy_rwa_list)):#plotting
     MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
-    MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM')
-    GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'blue',linestyle = 'dotted', label='GMBS')
+    MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM', linestyle = '-')
+    #GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'green',linestyle = '--', label='MBSM')
     #GMBS_gnd_analytical_line, = ax.plot(geff_list,E0+1*additionscaling, color = 'green', label = 'GND_GMBS')
     #GMBS_corrected_line, = ax.plot(geff_list,energy_GMBS_corrected_list[n]+1*additionscaling, color = 'fuchsia',linestyle = 'dotted', label='GMBS_corr')
 
-ax.set_ylabel(r'Energy')
-ax.set_xlabel(r'$g_{eff}$')
-plt.title(r'Comparison of Energy Spectrums for ' + 'D = ' + str(D-1))
-#ax.legend(handles=[MJC_line, MQRM_line, GMBS_line,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
+ax.set_ylabel(r'$(E+g_{eff}^2)/\omega$')
+ax.set_xlabel(r'$g_{eff}/\omega$')
+plt.title(r'Comparison of Energy Spectrums for ' + r'$D = $' + str(D-1) + r', $\varepsilon = $' + str(round(ep,3)))
+ax.legend(handles=[MJC_line, MQRM_line])#, GMBS_line])#,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
 
 
 

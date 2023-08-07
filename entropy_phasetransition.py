@@ -13,11 +13,11 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 30             # number of cavity fock states #needs to be really high to get good look at phase transition
-D = 2             #number of atomic states
+N = 50             # number of cavity fock states #needs to be really high to get good look at phase transition
+D = 4             #number of atomic states
 geff_forops = 1
 ep=0.2*geff_forops
-wa = 2**8          # cavity and atom frequency
+wa = 2**8         # cavity and atom frequency
 wc = 1
 
 gc = np.sqrt(wa*wc)/2 #prove this is the same for the multilevel model? as it seems to be numerically...
