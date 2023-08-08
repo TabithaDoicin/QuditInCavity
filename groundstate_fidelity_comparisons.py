@@ -16,7 +16,7 @@ import simulation as t
 #plt.rc('text.latex', preamble=r'\usepackage{physics}')
 
 N = 40             # number of cavity fock states
-D = 4             #number of atomic states
+D = 3             #number of atomic states
 geff_forops = 1
 ep=0.25*geff_forops
 wa = 1            # cavity and atom frequency
@@ -71,14 +71,14 @@ for k in range(geff_list_num):
     #interfidelity_list[k] = np.abs(interfidelity_list[k][0][0][0])**2
 fig, ax = plt.subplots()
 MJC, = ax.plot(geff_list, fidelity_rwa_list,color='black', label='MJC')
-GMBS_full, = ax.plot(geff_list, fidelity_MBS_list,color='violet', label='MBSM_full')
-#GMBS_toOrder, = ax.plot(geff_list, fidelity_MBS_list_toOrder,color='fuchsia', label='GMBS_toOrder')
+GMBS_full, = ax.plot(geff_list, fidelity_MBS_list,color='green', label='MBSM_full')
+GMBS_toOrder, = ax.plot(geff_list, fidelity_MBS_list_toOrder,color='fuchsia', label='GMBS_toOrder')
 #ax.plot(geff_list, interfidelity_list)
 
 ax.set_ylabel(r'F')
 ax.set_xlabel(r'$g_{eff}/\omega$')
-plt.title(r'Comparison of Fidelities Between Different Models and MQRM for ' + 'D = ' + str(D-1))
-ax.legend(handles=[MJC, GMBS_full])
+plt.title(r'Comparison of Fidelities Between Different Models and MQRM for ' + 'D = ' + str(D-1)+ r', $\varepsilon = $' + str(round(ep,3)))
+ax.legend(handles=[MJC, GMBS_full, GMBS_toOrder])
 
 
 

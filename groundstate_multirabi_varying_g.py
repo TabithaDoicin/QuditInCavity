@@ -15,9 +15,9 @@ import scipy as sp
 #plt.rc('text.latex', preamble=r'\usepackage{physics}')
 
 N = 30             # number of cavity fock states
-D = 9             #number of atomic states
+D = 3             #number of atomic states
 geff_forops = 1
-ep=1*geff_forops
+ep=0.25*geff_forops
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -80,13 +80,13 @@ ax.set_ylabel(r'$\langle{a^\dagger a}\rangle$')
 ax.set_xlabel(r'$g_{eff}$')
 MJC, = ax.plot(geff_list, n_gnd_rwa, label='MJC', color='black')
 MQRM, = ax.plot(geff_list, n_gnd_no_rwa-0*additionscaling, color='red', label='MQRM')
-MBS_full, = ax.plot(geff_list, n_gnd_MBS, color='blue', label='MBS_full')
-MBS_toOrder, = ax.plot(geff_list, n_gnd_MBS_toOrder, color='fuchsia', label='MBS_toOrder')
-MBS_toOrder_analytical, = ax.plot(geff_list, n_gnd_analytical_MBS,color = 'green', label='MBS_toOrder_analytical')
-ax.scatter(list_of_steps, np.linspace(0,0,len(list_of_steps)))
+MBS_full, = ax.plot(geff_list, n_gnd_MBS, color='green', label='MBS_full')
+#MBS_toOrder, = ax.plot(geff_list, n_gnd_MBS_toOrder, color='fuchsia', label='MBS_toOrder')
+#MBS_toOrder_analytical, = ax.plot(geff_list, n_gnd_analytical_MBS,color = 'green', label='MBS_toOrder_analytical')
+#ax.scatter(list_of_steps, np.linspace(0,0,len(list_of_steps)))
 plt.title(r'Comparison of Groundstate Pop $\langle{a^\dagger a}\rangle$ Between Different Models for ' + 'D = ' + str(D-1))
 plt.xlim(geff_list_min,geff_list_max)
-ax.legend(handles=[MJC, MQRM, MBS_full, MBS_toOrder,MBS_toOrder_analytical])
+ax.legend(handles=[MJC, MQRM, MBS_full])#, MBS_toOrder,MBS_toOrder_analytical])
 
 
 
