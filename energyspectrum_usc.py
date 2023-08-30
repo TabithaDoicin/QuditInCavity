@@ -12,10 +12,10 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 40             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
 D = 3          #number of atomic states
 geff = 1
-ep=0.25*geff
+ep=0.1*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -24,7 +24,7 @@ sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 2
+geff_list_max = 5
 geff_list_num = 200
 
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
@@ -88,16 +88,16 @@ else:
     E0 = [-g**2/(wa+wc) for g in geff_list]
 
 for n in range(len(energy_rwa_list)):#plotting
-    MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
+    #MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
     MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM', linestyle = '-')
-    GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'green',linestyle = '--', label='MBSM')
+    #GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'green',linestyle = '--', label='MBSM')
     #GMBS_gnd_analytical_line, = ax.plot(geff_list,E0+1*additionscaling, color = 'green', label = 'GND_GMBS')
     #GMBS_corrected_line, = ax.plot(geff_list,energy_GMBS_corrected_list[n]+1*additionscaling, color = 'fuchsia',linestyle = 'dotted', label='GMBS_corr')
 
 ax.set_ylabel(r'$(E+g_{eff}^2)/\omega$')
 ax.set_xlabel(r'$g_{eff}/\omega$')
 plt.title(r'Comparison of Energy Spectrums for ' + r'$D = $' + str(D-1) + r', $\varepsilon = $' + str(round(ep,3)))
-ax.legend(handles=[MJC_line, MQRM_line, GMBS_line])#,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
+#ax.legend(handles=[MJC_line, MQRM_line, GMBS_line])#,GMBS_gnd_analytical_line])#, GMBS_corrected_line])
 
 
 
