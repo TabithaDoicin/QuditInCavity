@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 3          #number of atomic states
+D = 4          #number of atomic states
 geff = 1
-ep=0.1*geff
+ep=0.2*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -90,7 +90,7 @@ else:
 for n in range(len(energy_rwa_list)):#plotting
     #MJC_line, = ax.plot(geff_list,energy_rwa_list[n], color = 'black', linestyle = 'dotted', label='MJC') #no rescaling?
     MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM', linestyle = '-')
-    #GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'green',linestyle = '--', label='MBSM')
+    GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'green',linestyle = '--', label='MBSM')
     #GMBS_gnd_analytical_line, = ax.plot(geff_list,E0+1*additionscaling, color = 'green', label = 'GND_GMBS')
     #GMBS_corrected_line, = ax.plot(geff_list,energy_GMBS_corrected_list[n]+1*additionscaling, color = 'fuchsia',linestyle = 'dotted', label='GMBS_corr')
 
