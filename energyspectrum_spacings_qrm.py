@@ -14,7 +14,7 @@ import math
 
 N = 600             # number of cavity fock states #needs to be really high to properly classify eigenenergies
 M = 5             # number of atom states
-geff = 0.2
+geff = 2
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -25,7 +25,7 @@ H = sys.hamiltonian_nodriving()
 eigspace = H.eigenstates()
 sys_energies = eigspace[0]
 sys_eigvecs = eigspace[1]
-normalised_sys_eng_diff = t.elevelspacings(sys_energies,sys_eigvecs,sys.P,1,0.5)
+normalised_sys_eng_diff, espacings = t.elevelspacings(sys_energies,sys_eigvecs,sys.P,1,0.5)
 
 fig, ax = plt.subplots()
 ####Plots of wigner-dyson and poisson distributions

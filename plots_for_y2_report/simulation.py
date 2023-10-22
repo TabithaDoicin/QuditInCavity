@@ -125,7 +125,7 @@ class MultiLevel:
             #constructing hamiltonian without RWA
             self.H_i = sum([self.glist[n-1]*(self.adag + self.a)*(self.vec[0,n] + self.vec[n,0]) for n  in  range(1,self.D)])
         
-        self.H = self.wc*self.adag*self.a + self.H_i - 0.5*self.wc*sum([self.vec[n,n] for n  in  range(1,self.D)])
+        self.H = self.wc*self.adag*self.a + self.H_i + 0.5 #extra 0.5 to bring to be like the others, since addition term is lost here
         return self.H
     
     def hamiltonian_withdriving(self):
