@@ -12,10 +12,10 @@ qutip.settings.has_mkl = False
 import matplotlib.pyplot as plt
 import simulation as t
 
-N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 4          #number of atomic states
+N = 40             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+D = 5          #number of atomic states
 geff = 1
-ep=0.2*geff
+ep=0.25*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -72,8 +72,8 @@ for n in range(len(energy_rwa_list)): #the length is the same as N*D because ham
     
 fig, ax = plt.subplots()
 additionscaling = np.empty([len(geff_list)])
-plt.ylim(-0.5, 2.5)
-plt.xlim(0,4)
+plt.ylim(-0.5, 3.5)
+plt.xlim(0,3)
 for k in range(len(geff_list)):
     additionscaling[k] = (geff_list[k])**2 
     
@@ -87,7 +87,7 @@ else:
     k=0
     E0 = [-g**2/(wa+wc) for g in geff_list]
 
-for n in range(len(energy_rwa_list)):#plotting
+for n in range(20):#plotting
     MJC_line, = ax.plot(geff_list,energy_rwa_list[n]+1*additionscaling, color = 'black', linestyle = 'dotted', label='MJCM') #no rescaling?
     MQRM_line, = ax.plot(geff_list,energy_no_rwa_list[n]+1*additionscaling, color = 'red', label='MQRM', linestyle = '-')
     GMBS_line, = ax.plot(geff_list,energy_GMBS_list[n]+1*additionscaling, color = 'green',linestyle = '--', label='MBSM')

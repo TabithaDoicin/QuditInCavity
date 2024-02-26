@@ -26,8 +26,8 @@ wc = 1
 sys = t.MultiLevel(N, D, geff_forops, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 #looking at geff variation
 geff_list_min = 0
-geff_list_max = 1
-geff_list_num = 50
+geff_list_max = 2
+geff_list_num = 100
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
 systems_rwa_list = np.empty([geff_list_num], dtype = object)
@@ -43,7 +43,7 @@ systems_gndstate_MBS_list_toOrder = np.empty([geff_list_num], dtype = object)
 for k in range(geff_list_num):
     systems_rwa_list[k] = t.MultiLevel(N, D, geff_list[k], ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
     systems_rwa_list[k].hamiltonian(suppress=True)
-    systems_gndstate_rwa_list[k] = systems_rwa_list[k].H.groundstate()[1]
+    systems_gndstate_rwa_list[k] = systems_rwa_list[0].H.groundstate()[1]
     
     systems_no_rwa_list[k] = t.MultiLevel(N, D, geff_list[k], ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=False)
     systems_no_rwa_list[k].hamiltonian(suppress=True)
@@ -51,8 +51,8 @@ for k in range(geff_list_num):
     
     systems_MBS_list[k] = t.GeneralBlochSiegert(N, D, geff_list[k], ep, wc, wa)
     systems_MBS_list[k].hamiltonian()
-    systems_gndstate_MBS_list[k] = systems_MBS_list[k].Udag * systems_MBS_list[k].H.groundstate()[1]
-    systems_gndstate_MBS_list_toOrder[k] = systems_MBS_list[k].U_toOrder_dag * systems_MBS_list[k].H.groundstate()[1]
+    systems_gndstate_MBS_list[k] = systems_MBS_list[k].Udag * systems_MBS_list[0].H.groundstate()[1]
+    systems_gndstate_MBS_list_toOrder[k] = systems_MBS_list[k].U_toOrder_dag * systems_MBS_list[0].H.groundstate()[1]
 
 fidelity_rwa_list = np.empty([geff_list_num], dtype = object)
 fidelity_MBS_list = np.empty([geff_list_num], dtype = object)
@@ -71,14 +71,17 @@ for k in range(geff_list_num):
     #interfidelity_list[k] = np.abs(interfidelity_list[k][0][0][0])**2
 fig, ax = plt.subplots()
 MJC, = ax.plot(geff_list, fidelity_rwa_list,color='black', label='MJC')
-GMBS_full, = ax.plot(geff_list, fidelity_MBS_list,color='green', label='MBSM_full')
-GMBS_toOrder, = ax.plot(geff_list, fidelity_MBS_list_toOrder,color='fuchsia', label='GMBS_toOrder')
+GMBS_full, = ax.plot(geff_list, fidelity_MBS_list,color='green', label='MBSM')
+#GMBS_toOrder, = ax.plot(geff_list, fidelity_MBS_list_toOrder,color='fuchsia', label='GMBS_toOrder')
 #ax.plot(geff_list, interfidelity_list)
 
-ax.set_ylabel(r'F')
+plt.ylim(0, 1)
+plt.xlim(0,1.5)
+
+ax.set_ylabel(r'Fidelity')
 ax.set_xlabel(r'$g_{eff}/\omega$')
-plt.title(r'Comparison of Fidelities Between Different Models and MQRM for ' + 'D = ' + str(D-1)+ r', $\varepsilon = $' + str(round(ep,3)))
-ax.legend(handles=[MJC, GMBS_full, GMBS_toOrder])
+#plt.title(r'Comparison of Fidelities Between Different Models and MQRM for ' + 'D = ' + str(D-1)+ r', $\varepsilon = $' + str(round(ep,3)))
+ax.legend(handles=[MJC, GMBS_full])#, GMBS_toOrder])
 
 
 

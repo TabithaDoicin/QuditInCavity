@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import simulation as t
 
 N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 3             #number of atomic states
+D = 4             #number of atomic states
 geff_forops = 1
 ep=0.25*geff_forops
 wa = 1          # cavity and atom frequency
@@ -22,7 +22,7 @@ wc = 1
 
 #geff variation
 geff_list_min = 0
-geff_list_max = 1.5
+geff_list_max = 3
 geff_list_num = 200
 geff_list = np.linspace(geff_list_min, geff_list_max, geff_list_num)
 
@@ -38,7 +38,7 @@ systems_gndstate_MBS_list = np.empty([geff_list_num], dtype = object)
 for k in range(geff_list_num):
     systems_rwa_list[k] = t.MultiLevel(N, D, geff_list[k], ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
     systems_rwa_list[k].hamiltonian(suppress=True)
-    systems_gndstate_rwa_list[k] = systems_rwa_list[k].H.groundstate()[1]
+    systems_gndstate_rwa_list[k] = systems_rwa_list[0].H.groundstate()[1]
     
     systems_no_rwa_list[k] = t.MultiLevel(N, D, geff_list[k], ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=False)
     systems_no_rwa_list[k].hamiltonian(suppress=True)
@@ -46,7 +46,7 @@ for k in range(geff_list_num):
     
     systems_MBS_list[k] = t.GeneralBlochSiegert(N, D, geff_list[k], ep, wc, wa)
     systems_MBS_list[k].hamiltonian()
-    systems_gndstate_MBS_list[k] = systems_MBS_list[k].Udag * systems_MBS_list[k].H.groundstate()[1] #basis changed even needed for entropy?
+    systems_gndstate_MBS_list[k] = systems_MBS_list[k].Udag * systems_MBS_list[0].H.groundstate()[1] #basis changed even needed for entropy?
 
 entropy_cav_rwa = np.empty([geff_list_num], dtype= np.float128)
 entropy_ato_rwa = np.empty([geff_list_num], dtype= np.float128)
@@ -75,12 +75,12 @@ for k in range(geff_list_num):
 
 fig, ax = plt.subplots()
 ax.set_ylabel(r'$S$')
-ax.set_xlabel(r'$g_{eff}$')
+ax.set_xlabel(r'$g_{eff}/\omega$')
 MJCcav, = ax.plot(geff_list, entropy_cav_rwa, label='MJC', color='black')
 #MJCato, = ax.plot(geff_list, entropy_ato_rwa, label='MJC', color='black', linestyle = 'dotted')
 MQRMcav, = ax.plot(geff_list, entropy_cav_norwa, color='red', label='MQRM')
 #MQRMato, = ax.plot(geff_list, entropy_ato_norwa, color='red', label='MQRM', linestyle = 'dotted')
-MBScav, = ax.plot(geff_list, entropy_cav_MBS, color='green', ls='--', label='MBS_full')
+MBScav, = ax.plot(geff_list, entropy_cav_MBS, color='green', ls='--', label='MBSM')
 #MBSato, = ax.plot(geff_list, entropy_ato_MBS, color='blue', label='MBS_full', linestyle = 'dotted')
 
 plt.xlim(geff_list_min,geff_list_max)

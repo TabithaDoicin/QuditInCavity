@@ -17,7 +17,7 @@ plt.rc('text.latex', preamble=r'\usepackage{physics}')
 N = 40             # number of cavity fock states
 #D = 2             #number of atomic states
 geff = 0.2
-ep=0.5
+ep=0.25
 wa = 1            # cavity and atom frequency
 wc = 1
 
@@ -53,6 +53,6 @@ for k in range(len(D_list)):
 fig, ax = plt.subplots()
 ax.set_ylabel(r'$\langle{a^\dagger a}\rangle$')
 ax.set_xlabel(r'$D$')
-ax.set_title("Gnd_state pops for rwa(blue) and no_rwa(orange) varying D, with geff=" + str(geff) + ", ep=" + str(ep) + ".")
+#ax.set_title("Gnd_state pops for rwa(blue) and no_rwa(orange) varying D, with geff=" + str(geff) + ", ep=" + str(ep) + ".")
 ax.plot(D_list, n_gnd_rwa)
 ax.plot(D_list, n_gnd_no_rwa)
