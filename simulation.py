@@ -247,6 +247,66 @@ class MultiLevel:
                 self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
             return self.pdark
         
+class HighMultilevel:
+    
+        def __init__(self, N, D, geff, ep, wc, wa, C, crit=0.3, kappa=0, gamma=0, gamma_d=0, theta=0):
+            #system variables
+            self.N = N #max cavity population
+            self.D = D #atomic levels
+            self.geff = geff #strength of atom cavity interaction
+            self.ep = ep #atomic energy level spacing
+            self.wc = wc #cavity frequency
+            self.wa = wa #atom frequency
+            self.C = C
+            self.kappa = kappa #cavity decay
+            self.gamma = gamma #radiative devay
+            self.gamma_d = gamma_d #dephasing
+            self.theta = theta #pumping
+            
+            self.a = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
+            self.adag = self.a.dag()
+            #multilevel energies
+            self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
+            
+            if self.D == 2:
+                self.delta = [0]
+            else:
+                self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
+            
+            self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
+            self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators vec(n,m) = |n><m|
+            for n in range(self.D):
+                for m in range(self.D):
+                    self.vec[n,m] = qt.tensor(qt.operators.qeye(self.N),self.vectorsmat[n,m]) #vec[n,m].dag = vec[m,n]
+            
+            self.n_op_tot = self.adag*self.a + sum([self.vec[n,0]*self.vec[0,n] for n in range(1,self.D)])
+            self.n_op = self.adag*self.a 
+            
+            self.Pexp = 1j * np.pi * self.n_op_tot
+            self.P = self.Pexp.expm()
+            self.crit = crit
+            if self.geff<self.crit:
+                self.x0=0
+            else:
+                self.x0 = math.sqrt(2*C)*math.sqrt(self.geff**2/self.wc**2 - self.wa**2/(16*self.geff**2))#geff
+        def collapse(self):
+            #collapse operators
+            self.coop_cavity_decay = [np.sqrt(self.kappa)*self.a]
+            self.coop_radiative_decay = [np.sqrt(self.gamma)*self.vec[0,n] for n in range(1,self.D)]
+            self.coop_dephasing = [np.sqrt(self.gamma_d)*self.vec[n,n] for n in  range(1,self.D)]
+            self.coop_pumping = [np.sqrt(self.theta/(self.D-1))*self.vec[n,0] for n in range(1,self.D)]
+            
+            self.c_ops = self.coop_cavity_decay + self.coop_radiative_decay + self.coop_dephasing + self.coop_pumping
+            
+            return self.c_ops
+                
+        def hamiltonian(self):
+            self.H_i = sum([self.glist[n-1]*(self.adag + self.a)*(self.vec[0,n] + self.vec[n,0]) for n  in  range(1,self.D)])
+            self.H = self.wc/math.sqrt(self.C)*self.adag*self.a + sum([math.sqrt(self.C)*(self.wa + self.delta[i-1])*self.vec[i,i] for i in range(1,self.D)]) + self.H_i \
+                + self.wc*self.x0/math.sqrt(self.C)*1/math.sqrt(2)*(self.adag+self.a)\
+                    +math.sqrt(2)*self.x0*sum([self.glist[n-1]*(self.vec[0,n] + self.vec[n,0]) for n  in  range(1,self.D)])
+            return self.H
+            
 class DegenBlochSiegert: 
     
     def __init__(self, N, D, geff, wc, wa):
