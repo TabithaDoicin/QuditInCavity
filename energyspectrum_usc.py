@@ -23,7 +23,7 @@ wc = 1
 sys = t.MultiLevel(N, D, geff, ep, wc, wa, 0, 0, 0, 0, 0, 0, 0, rwa=True)
 
 #looking at geff variation
-geff_list_min = 0,35
+geff_list_min = 0.35
 geff_list_max = 0.65
 geff_list_num = 200
 

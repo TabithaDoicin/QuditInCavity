@@ -11,6 +11,13 @@ import multiprocess as mp
 from multiprocess import Process, Queue
 import scipy as sp
 import math
+import random
+
+def randomlydistribute(averageval,spread,number):
+    out = np.empty([number],dtype='f8')
+    for k in range(number):
+        out[k] = averageval + spread*random.random()-0.5*spread
+    return sorted(out)
 
 def vector2(d):
     out = np.empty([d,d],dtype=object)
@@ -57,13 +64,18 @@ class MultiLevel:
         
         self.alpha = displacement
         #multilevel energies
-        self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
+        if isinstance(self.geff, np.ndarray):
+            self.glist = self.geff
+        else:
+            self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
         
         if self.D == 2:
             self.delta = [0]
+        elif isinstance(self.ep, np.ndarray):
+            self.delta = self.ep
+            self.ep = np.abs(self.delta).max()
         else:
             self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
-            
         #system operators - cavity - displaced automatically by alpha
         self.a  = qt.tensor(qt.displace(N,self.alpha).dag()*qt.operators.destroy(self.N)*qt.displace(N,self.alpha), qt.operators.qeye(self.D))
         self.adag = self.a.dag()
@@ -83,7 +95,7 @@ class MultiLevel:
         self.Pexp = 1j * np.pi * self.n_op_tot
         self.P = self.Pexp.expm()
         
-        ###MBSM unitary transforms
+        ##MBSM unitary transforms
         self.beta = self.wc + self.wa
         self.Lambda=[self.glist[k-1]/(self.beta+self.ep*((k-1)/(self.D-1)-0.5)) for k in range(1,self.D)]
         self.phi = 1/(2*wc) * np.array([[self.Lambda[k-1]*self.glist[j-1] for j in range(1,self.D)] for k in range(1,self.D)])
@@ -107,7 +119,7 @@ class MultiLevel:
         if self.rwa==True:
             #constructing hamiltonian in RWA
             self.H_i = sum([self.glist[n-1]*(self.adag*self.vec[0,n] + self.a*self.vec[n,0]) for n  in  range(1,self.D)])
-        
+            
         elif self.rwa==False:
             #constructing hamiltonian without RWA
             self.H_i = sum([self.glist[n-1]*(self.adag + self.a)*(self.vec[0,n] + self.vec[n,0]) for n  in  range(1,self.D)])
@@ -266,13 +278,20 @@ class HighMultilevel:
             self.a = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
             self.adag = self.a.dag()
             #multilevel energies
-            self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
+            if isinstance(self.geff, list):
+                self.glist = self.geff
+            else:
+                self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
             
             if self.D == 2:
                 self.delta = [0]
             else:
                 self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
             
+            if isinstance(self.ep, list):
+                self.delta = self.ep
+            else:
+                pass
             self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
             self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators vec(n,m) = |n><m|
             for n in range(self.D):
