@@ -71,7 +71,7 @@ class MultiLevel:
         
         if self.D == 2:
             self.delta = [0]
-        elif isinstance(self.ep, np.ndarray):
+        elif isinstance(self.ep, list):
             self.delta = self.ep
             self.ep = np.abs(self.delta).max()
         else:
