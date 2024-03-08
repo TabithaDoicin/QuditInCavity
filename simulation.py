@@ -13,8 +13,23 @@ import scipy as sp
 import math
 import random
 
+
+def glist_generator(number,uniform=False):
+    out = np.zeros([number],dtype = 'f')
+    for i in range(number):
+        if i == 0:
+            out[i] = random.random()
+        elif i == number-1:
+            out[i] = 1-np.sum(out)
+        else:
+            out[i] = (1-np.sum(out))*random.random()
+    if uniform==False:
+        return np.sqrt(out)
+    else:
+        return np.ones([number])*1/np.sqrt(number)
+
 def randomlydistribute(averageval,spread,number):
-    out = np.empty([number],dtype='f8')
+    out = np.empty([number],dtype='f')
     for k in range(number):
         out[k] = averageval + spread*random.random()-0.5*spread
     return sorted(out)
@@ -66,11 +81,13 @@ class MultiLevel:
         #multilevel energies
         if isinstance(self.geff, np.ndarray):
             self.glist = self.geff
+            self.geff = np.sum(np.square(self.glist))
         else:
             self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
         
         if self.D == 2:
             self.delta = [0]
+            self.ep = np.abs(self.delta).max()
         elif isinstance(self.ep, list):
             self.delta = self.ep
             self.ep = np.abs(self.delta).max()
@@ -94,6 +111,9 @@ class MultiLevel:
         
         self.Pexp = 1j * np.pi * self.n_op_tot
         self.P = self.Pexp.expm()
+        
+        self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)])
+        self.ground = self.vec[0,0]
         
         ##MBSM unitary transforms
         self.beta = self.wc + self.wa
@@ -249,15 +269,18 @@ class MultiLevel:
             return self.ss_dm
         
     def darkstate_proportion(self, driving=False):
-        self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)])
         if driving == False:
-            self.pdark = 1-(self.ss_dm*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag()/self.geff**2))).tr()
+            self.pdark = 1-(self.ss_dm*(self.ground + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag()/self.geff**2))).tr()
             return np.real(self.pdark)
         elif driving == True:
             self.pdark = np.empty([self.accuracy],dtype=object)
             for i in range(self.accuracy):
-                self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.vec[0,0] + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
+                self.pdark[i] = np.real(1-(self.ss_dm[i]*(self.ground + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag())/self.geff**2)).tr())
             return self.pdark
+    
+    def darkstate_proportion_external(self, densitymat):
+        self.pdark = 1-(densitymat*(self.ground + qt.tensor(qt.operators.qeye(self.N), self.bright*self.bright.dag()/self.geff**2))).tr()
+        return np.real(self.pdark)
         
 class HighMultilevel:
     
