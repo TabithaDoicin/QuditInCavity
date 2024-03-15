@@ -15,10 +15,10 @@ import matplotlib
 import simulation as t
 from matplotlib.axes._axes import _log as matplotlib_axes_logger
 matplotlib_axes_logger.setLevel('ERROR')
-N = 40             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 5          #number of atomic states
+N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
+D = 3          #number of atomic states
 geff = 1
-ep=0.6*geff
+ep=1.5*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 

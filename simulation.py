@@ -81,7 +81,7 @@ class MultiLevel:
         #multilevel energies
         if isinstance(self.geff, np.ndarray):
             self.glist = self.geff
-            self.geff = np.sum(np.square(self.glist))
+            self.geff = np.sqrt(np.sum(np.square(self.glist)))
         else:
             self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
         
