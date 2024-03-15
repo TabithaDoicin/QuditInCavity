@@ -79,6 +79,9 @@ class MultiLevel:
         
         self.alpha = displacement
         #multilevel energies
+        
+        #LOGIC FOR LISTS INPUT
+
         if isinstance(self.geff, np.ndarray):
             self.glist = self.geff
             self.geff = np.sqrt(np.sum(np.square(self.glist)))
@@ -93,6 +96,11 @@ class MultiLevel:
             self.ep = np.abs(self.delta).max()
         else:
             self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
+        
+    
+        #LOGIC FOR LISTS INPUT
+        
+        
         #system operators - cavity - displaced automatically by alpha
         self.a  = qt.tensor(qt.displace(N,self.alpha).dag()*qt.operators.destroy(self.N)*qt.displace(N,self.alpha), qt.operators.qeye(self.D))
         self.adag = self.a.dag()
@@ -112,8 +120,8 @@ class MultiLevel:
         self.Pexp = 1j * np.pi * self.n_op_tot
         self.P = self.Pexp.expm()
         
-        self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)])
-        self.ground = self.vec[0,0]
+        self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)]) #vector
+        self.ground = self.vec[0,0] #ground*ground.dag
         
         ##MBSM unitary transforms
         self.beta = self.wc + self.wa
@@ -301,20 +309,29 @@ class HighMultilevel:
             self.a = qt.tensor(qt.operators.destroy(self.N), qt.operators.qeye(self.D))
             self.adag = self.a.dag()
             #multilevel energies
-            if isinstance(self.geff, list):
+            
+            
+            #LOGIC FOR LISTS INPUT
+ 
+            if isinstance(self.geff, np.ndarray):
                 self.glist = self.geff
+                self.geff = np.sqrt(np.sum(np.square(self.glist)))
             else:
                 self.glist = np.linspace(self.geff/np.sqrt(self.D-1),self.geff/np.sqrt(self.D-1),self.D-1)
             
             if self.D == 2:
                 self.delta = [0]
+                self.ep = np.abs(self.delta).max()
+            elif isinstance(self.ep, list):
+                self.delta = self.ep
+                self.ep = np.abs(self.delta).max()
             else:
                 self.delta = np.linspace(-self.ep/2,self.ep/2,self.D-1)
             
-            if isinstance(self.ep, list):
-                self.delta = self.ep
-            else:
-                pass
+            
+            #LOGIC FOR LISTS INPUT
+            
+            
             self.vectorsmat = vector2(self.D) #basis * basis.dag matrix
             self.vec = np.empty([self.D,self.D],dtype=object) #atomic generalised ladder operators vec(n,m) = |n><m|
             for n in range(self.D):
@@ -331,6 +348,10 @@ class HighMultilevel:
                 self.x0=0
             else:
                 self.x0 = math.sqrt(2*C)*math.sqrt(self.geff**2/self.wc**2 - self.wa**2/(16*self.geff**2))#geff
+                
+            self.bright = sum([self.glist[n-1]*qt.states.basis(self.D,n) for n in range(1,self.D)]) #vector
+            self.ground = self.vec[0,0] #ground*ground.dag
+            
         def collapse(self):
             #collapse operators
             self.coop_cavity_decay = [np.sqrt(self.kappa)*self.a]
