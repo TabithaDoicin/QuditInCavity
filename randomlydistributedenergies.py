@@ -16,20 +16,23 @@ import simulation as t
 from matplotlib.axes._axes import _log as matplotlib_axes_logger
 matplotlib_axes_logger.setLevel('ERROR')
 N = 30             # number of cavity fock states #needs to be really high to properly classify eigenenergies
-D = 3          #number of atomic states
+D = 4          #number of atomic states
 geff = 1
-ep=1.5*geff
+ep=0.5*geff
 wa = 1            # cavity and atom frequency
 wc = 1
 
 geff_list_min = 0
-geff_list_max = 2
-geff_list_num = 100
+geff_list_max = 2.5
+geff_list_num = 150
 
 geff_list_iterator = np.linspace(geff_list_min,geff_list_max,geff_list_num)
 deltalist = t.randomlydistribute(0, ep,D-1)
 print(deltalist)
-gefflist_normalised = t.glist_generator(D-1,True)
+#gefflist_normalised = t.glist_generator(D-1,True)
+position=2
+dominance=0.95
+gefflist_normalised = t.glist_gen_dominance(D-1, position, dominance)
 print(gefflist_normalised)
 geff_list = np.zeros([geff_list_num],dtype=object)
 for k in range(len(geff_list)):
@@ -37,9 +40,9 @@ for k in range(len(geff_list)):
 systems_list = np.empty([geff_list_num], dtype = object)
 systems_energies_list = np.empty([geff_list_num], dtype = object)
 
-
+epinput = ep #either ep or deltalist
 for k in range(geff_list_num):
-    systems_list[k] = t.MultiLevel(N, D, geff_list[k], deltalist, wc, wa,rwa=False)
+    systems_list[k] = t.MultiLevel(N, D, geff_list[k], epinput, wc, wa,rwa=False)
     systems_list[k].hamiltonian(suppress=True)
     systems_energies_list[k] = np.array(systems_list[k].H.eigenenergies())
     systems_energies_list[k] = systems_energies_list[k] - systems_energies_list[k].min()
@@ -79,6 +82,8 @@ for n in range(30):#plotting
     for m in range(len(geff_list)):
         ELevelLines = ax.scatter(geff_list_iterator[m],energy_list[n][m], label = 'energies', marker = '.', linewidths=0.5, c = cmap(1-darkness_list[n][m])) #no rescaling?
         
-        
+ax.set_ylabel(r'$(E+g_{eff}^2)/\omega$')
+ax.set_xlabel(r'$g_{eff}/\omega$')
 fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
-             ax=ax, label="Brightness/Groundness")
+             ax=ax, label="Superradiance")
+plt.title(r'Energy Spectrum of MQRM for ' + r'$D = $' + str(D-1) + r', $\varepsilon = $' + str(round(ep,3)) + r'$\omega$')

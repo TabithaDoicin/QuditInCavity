@@ -28,6 +28,13 @@ def glist_generator(number,uniform=False):
     else:
         return np.ones([number])*1/np.sqrt(number)
 
+def glist_gen_dominance(number,position,dominance):
+    out = np.ones([number])*(1-dominance**2)/(number-1)
+    out[position] = dominance**2
+    return np.sqrt(out)
+    
+        
+
 def randomlydistribute(averageval,spread,number):
     out = np.empty([number],dtype='f')
     for k in range(number):
